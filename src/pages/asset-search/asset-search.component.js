@@ -137,6 +137,7 @@
       self.loading = true;
       httpService.getTableInfoRequest(interfacesService.getAssetUrl, searchType, searchKeyWord, assetCategory, departmentResponsibility, pageNum, self.searchInfo.searchPageSize).then(function(response) {
         if (response.status == 200 && response.data.data.list) {
+          console.log('666')
           lastSearchRecord.searchType = searchType;
           lastSearchRecord.searchKeyWord = searchKeyWord;
           lastSearchRecord.assetCategory = assetCategory;

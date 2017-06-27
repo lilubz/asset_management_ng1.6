@@ -8,6 +8,385 @@
 (function() {
   'use strict';
 
+  angular.module('app').component('assetTable', component());
+
+  /* @ngInject */
+  function component() {
+    var component = {
+      templateUrl: 'components/asset-table/asset-table.template.html',
+      controller: assetTableCtrl,
+      bindings: {
+        data: '<',
+        theadInfo: '<',
+        firstAction: '&',
+        secondAction: '&',
+        thirdAction: '&',
+        hasCheckbox: '<',
+        isSelectedArray: '<'
+      },
+      transclude: {
+        'checkbox': '?tableCheckbox',
+        'button': '?tableButton'
+      }
+    };
+
+    return component;
+  }
+
+  assetTableCtrl.$inject = [];
+
+  /* @ngInject */
+  function assetTableCtrl() {}
+})();
+
+(function() {
+  'use strict';
+
+  angular.module('app').factory('assetTableService', factory);
+
+  factory.$inject = ['$rootScope', '$state', '$http', 'interfacesService'];
+
+  /* @ngInject */
+  function factory($rootScope, $state, interfacesService) {
+    var service = {
+      tableInitailize: tableInitailize
+    }
+
+    return service
+
+    // 创建table表头信息，计算每一列的宽度
+    function tableInitailize(data) {
+      var list = data.list[0];
+      var theadInfo = {
+        theadEng: [],
+        theadChn: [],
+        theadStyle: {}
+      };
+      angular.forEach(list, function(value, key) {
+        if (key !== 'createTime' && key !== 'updateTime') {
+          var keyChn;
+          switch (key) {
+            case 'assetId':
+              keyChn = '资产编号';
+              break;
+            case 'assetName':
+              keyChn = '资产名称';
+              break;
+            case 'assetCategory':
+              keyChn = '资产类别';
+              break;
+            case 'brandSpecification':
+              keyChn = '品牌规格';
+              break;
+            case 'unitMeasurement':
+              keyChn = '计量单位';
+              break;
+            case 'bookAmount':
+              keyChn = '资产账面数量';
+              break;
+            case 'inventoryAmount':
+              keyChn = '资产盘点数量';
+              break;
+            case 'storageLocation':
+              keyChn = '存放地点';
+              break;
+            case 'departmentResponsibility':
+              keyChn = '责任部门';
+              break;
+            case 'personInCharge':
+              keyChn = '责任人';
+              break;
+            case 'statusUsage':
+              keyChn = '使用状况';
+              break;
+          }
+          theadInfo.theadEng.push(key);
+          theadInfo.theadChn.push(keyChn);
+        }
+      });
+      theadInfo.theadStyle = {
+        'width': (1 / theadInfo.theadEng.length * 100) + '%'
+      };
+      return theadInfo;
+    }
+  }
+})();
+
+(function() {
+  'use strict';
+
+  angular.module('app').component('assetModal', component());
+
+  /* @ngInject */
+  function component() {
+    var component = {
+      templateUrl: 'components/asset-modal/asset-modal.template.html',
+      controller: assetModalCtrl,
+      bindings: {
+        modalTitle: '@',
+        btnName: '@',
+        isDisable: '<',
+        modal: '<',
+        showModal: '=',
+        clean: '&',
+        submit: "&"
+      }
+    };
+
+    return component;
+  }
+
+  assetModalCtrl.$inject = [];
+
+  /* @ngInject */
+  function assetModalCtrl() {}
+})();
+
+(function() {
+  'use strict';
+
+  angular.module('app').component('searchGroup', component());
+
+  /* @ngInject */
+  function component() {
+    var component = {
+      templateUrl: 'components/search-group/search-group.template.html',
+      controller: searchGroupCtrl,
+      bindings: {
+        searchType: '<',
+        searchInfo: '<',
+        lastSearchRecord: '<',
+        searchUrl: '<',
+        searchAction: "&"
+      }
+    };
+
+    return component;
+  }
+
+  searchGroupCtrl.$inject = ['$timeout', 'interfacesService', 'httpService'];
+
+  /* @ngInject */
+  function searchGroupCtrl($timeout, interfacesService, httpService) {
+    var self = this;
+    var autoSearchResult;
+    var lastAutoSearchKeyWord;
+    // self.$onInit = function(){
+    self.departmentArray = []
+    self.categoryArray = []
+    self.autoCompleteArray = []
+    self.showAutoComplete = false
+    // }
+    self.$onChanges = function(changes) {
+      if (changes.searchType)
+        self.searchInfo.searchKeyWord = '';
+    };
+
+    self.getDeptAndCateArray = getDeptAndCateArray;
+    self.autoSearch = autoSearch;
+    self.createAutoCompleteArray = createAutoCompleteArray;
+    self.selectAutoCompleteItem = selectAutoCompleteItem;
+    self.hide = hide;
+
+    self.getDeptAndCateArray(interfacesService.getDepartment, 'department');
+    self.getDeptAndCateArray(interfacesService.getCategory, 'category');
+
+    // 删除两边空格
+    function trim(string) {
+      return string.replace(/(^\s*)|(\s*$)/g, "");
+    }
+    // 获取部门和资产类别信息
+    function getDeptAndCateArray(url, param) {
+      httpService.getRequest(url).then(function(response) {
+        if (response.data.status == 0) {
+          self[param + 'Array'] = response.data.data;
+        }
+      })
+    }
+    // 由keyup触发，发起请求
+    function autoSearch() {
+      lastAutoSearchKeyWord = '';
+      if (self.searchInfo.searchType == "assetId")
+        return;
+      var keyWord = trim(self.searchInfo.searchKeyWord);
+      self.showAutoComplete = true;
+      if (!keyWord) {
+        self.autoCompleteArray = [];
+        return
+      }
+      if (keyWord && lastAutoSearchKeyWord !== keyWord) {
+        lastAutoSearchKeyWord = keyWord;
+        httpService.getTableInfoRequest(interfacesService[self.searchUrl], self.searchInfo.searchType, keyWord, '', '', 1, 99).then(function(response) {
+          if (response.status == 200 && response.data.data.list) {
+            autoSearchResult = response.data.data.list;
+            self.createAutoCompleteArray();
+          }
+        })
+      }
+    }
+    // 由返回数据生成模糊搜索列表
+    function createAutoCompleteArray() {
+      self.autoCompleteArray = [];
+      if (autoSearchResult.length) {
+        var key = self.searchInfo.searchType;
+        for (var i = 0; i < autoSearchResult.length; i++) {
+          if (autoSearchResult[i][key] && self.autoCompleteArray.indexOf(autoSearchResult[i][key]) === -1) {
+            self.autoCompleteArray.push(autoSearchResult[i][key])
+          }
+        }
+      }
+    }
+    // 点击触发搜索
+    function selectAutoCompleteItem(item) {
+      self.showAutoComplete = false;
+      self.autoCompleteArray = [];
+      self.searchInfo.searchKeyWord = item;
+      self.searchAction({searchType: self.searchInfo.searchType, searchKeyWord: item, assetCategory: '', departmentResponsibility: '', pageNum: 1})
+    }
+    // 隐藏模糊搜索列表
+    function hide() {
+      if (self.showAutoComplete === true)
+        $timeout(function() {
+          self.showAutoComplete = false;
+          self.autoCompleteArray = [];
+          lastAutoSearchKeyWord = '';
+        }, 200)
+    }
+
+  }
+})();
+
+(function() {
+  'use strict';
+
+  angular.module('app').component('pagination', component());
+
+  /* @ngInject */
+  function component() {
+    var component = {
+      templateUrl: 'components/pagination/pagination.template.html',
+      controller: paginationCtrl,
+      bindings: {
+        data: '<',
+        searchInfo: '<',
+        searchPageSize: '<',
+        searchPageNumber: '<',
+        searchUrl: '<',
+        lastSearchRecord: '<',
+        searchPageNumberChange: '&',
+        searchAction: '&'
+      }
+    };
+
+    return component;
+  }
+
+  paginationCtrl.$inject = [];
+
+  /* @ngInject */
+  function paginationCtrl() {
+    var self = this;
+    self.$onChanges = function(changes) {
+      if (changes.searchPageSize && !changes.searchPageSize.isFirstChange()) {
+        self.searchAction({
+          searchType: self.lastSearchRecord.searchType,
+          searchKeyWord: self.lastSearchRecord.searchKeyWord,
+          assetCategory: self.lastSearchRecord.assetCategory,
+          departmentResponsibility: self.lastSearchRecord.departmentResponsibility,
+          pageNum: 1,
+          url: self.searchUrl
+        });
+      }
+      if (changes.searchPageNumber && !changes.searchPageNumber.isFirstChange()) {
+        self.searchAction({
+          searchType: self.lastSearchRecord.searchType,
+          searchKeyWord: self.lastSearchRecord.searchKeyWord,
+          assetCategory: self.lastSearchRecord.assetCategory,
+          departmentResponsibility: self.lastSearchRecord.departmentResponsibility,
+          pageNum: self.searchInfo.searchPageNumber,
+          url: self.searchUrl
+        });
+      }
+    }
+  }
+})();
+
+(function() {
+  'use strict';
+
+  angular.module('app').component('selectMenu', component());
+
+  /* @ngInject */
+  function component() {
+    var component = {
+      templateUrl: 'components/select-menu/select-menu.template.html',
+      controller: selectMenuCtrl,
+      bindings: {
+        searchInfo: '<',
+        inventoryType: '<',
+        selectList: '<',
+        action: '&'
+      }
+    };
+
+    return component;
+  }
+
+  selectMenuCtrl.$inject = [];
+
+  /* @ngInject */
+  function selectMenuCtrl() {
+    var self = this
+    self.$onChanges = function(changes) {
+      if (changes.inventoryType && !changes.inventoryType.isFirstChange()) {
+        self.action({
+          searchType: '',
+          searchKeyWord: '',
+          assetCategory: '',
+          departmentResponsibility: '',
+          pageNum: 1,
+          url: self.searchInfo.inventoryType
+        });
+      }
+    }
+
+  }
+})();
+
+(function() {
+  'use strict';
+
+  angular.module('app').component('warningModal', component());
+
+  /* @ngInject */
+  function component() {
+    var component = {
+      templateUrl: 'components/warning-modal/warning-modal.template.html',
+      controller: warningModalCtrl,
+      bindings: {
+        modalTitle: '@',
+        showModal: '=',
+        clean: '&'
+      },
+      transclude: {
+        'div': '?modalDiv',
+        'text': '?modalText',
+        'reminder': '?modalReminder'
+      }
+    };
+
+    return component;
+  }
+
+  warningModalCtrl.$inject = [];
+
+  /* @ngInject */
+  function warningModalCtrl() {}
+})();
+
+(function() {
+  'use strict';
+
   angular.module('app').component('appBreadcrumb', component());
 
   /* @ngInject */
@@ -125,31 +504,6 @@
   }
 })();
 
-(function() {
-  'use strict';
-
-  angular.module('app').component('appHead', component());
-
-  /* @ngInject */
-  function component() {
-    var component = {
-      templateUrl: 'layout/app-head/head.template.html',
-      controller: appHeadCtrl
-    };
-
-    return component;
-  }
-
-  appHeadCtrl.$inject = [];
-
-  /* @ngInject */
-  function appHeadCtrl() {
-    this.$onInit = function() {
-      this.showLogout = false
-    }
-  }
-})();
-
 
 (function() {
   'use strict';
@@ -175,6 +529,31 @@
     $scope.$on('$stateChangeSuccess', function() {
       self.currentState = $state.$current.name
     })
+  }
+})();
+
+(function() {
+  'use strict';
+
+  angular.module('app').component('appHead', component());
+
+  /* @ngInject */
+  function component() {
+    var component = {
+      templateUrl: 'layout/app-head/head.template.html',
+      controller: appHeadCtrl
+    };
+
+    return component;
+  }
+
+  appHeadCtrl.$inject = [];
+
+  /* @ngInject */
+  function appHeadCtrl() {
+    this.$onInit = function() {
+      this.showLogout = false
+    }
   }
 })();
 
@@ -827,385 +1206,6 @@ function cardCollapseDirective() {
 (function() {
   'use strict';
 
-  angular.module('app').component('assetModal', component());
-
-  /* @ngInject */
-  function component() {
-    var component = {
-      templateUrl: 'components/asset-modal/asset-modal.template.html',
-      controller: assetModalCtrl,
-      bindings: {
-        modalTitle: '@',
-        btnName: '@',
-        isDisable: '<',
-        modal: '<',
-        showModal: '=',
-        clean: '&',
-        submit: "&"
-      }
-    };
-
-    return component;
-  }
-
-  assetModalCtrl.$inject = [];
-
-  /* @ngInject */
-  function assetModalCtrl() {}
-})();
-
-(function() {
-  'use strict';
-
-  angular.module('app').component('assetTable', component());
-
-  /* @ngInject */
-  function component() {
-    var component = {
-      templateUrl: 'components/asset-table/asset-table.template.html',
-      controller: assetTableCtrl,
-      bindings: {
-        data: '<',
-        theadInfo: '<',
-        firstAction: '&',
-        secondAction: '&',
-        thirdAction: '&',
-        hasCheckbox: '<',
-        isSelectedArray: '<'
-      },
-      transclude: {
-        'checkbox': '?tableCheckbox',
-        'button': '?tableButton'
-      }
-    };
-
-    return component;
-  }
-
-  assetTableCtrl.$inject = [];
-
-  /* @ngInject */
-  function assetTableCtrl() {}
-})();
-
-(function() {
-  'use strict';
-
-  angular.module('app').factory('assetTableService', factory);
-
-  factory.$inject = ['$rootScope', '$state', '$http', 'interfacesService'];
-
-  /* @ngInject */
-  function factory($rootScope, $state, interfacesService) {
-    var service = {
-      tableInitailize: tableInitailize
-    }
-
-    return service
-
-    // 创建table表头信息，计算每一列的宽度
-    function tableInitailize(data) {
-      var list = data.list[0];
-      var theadInfo = {
-        theadEng: [],
-        theadChn: [],
-        theadStyle: {}
-      };
-      angular.forEach(list, function(value, key) {
-        if (key !== 'createTime' && key !== 'updateTime') {
-          var keyChn;
-          switch (key) {
-            case 'assetId':
-              keyChn = '资产编号';
-              break;
-            case 'assetName':
-              keyChn = '资产名称';
-              break;
-            case 'assetCategory':
-              keyChn = '资产类别';
-              break;
-            case 'brandSpecification':
-              keyChn = '品牌规格';
-              break;
-            case 'unitMeasurement':
-              keyChn = '计量单位';
-              break;
-            case 'bookAmount':
-              keyChn = '资产账面数量';
-              break;
-            case 'inventoryAmount':
-              keyChn = '资产盘点数量';
-              break;
-            case 'storageLocation':
-              keyChn = '存放地点';
-              break;
-            case 'departmentResponsibility':
-              keyChn = '责任部门';
-              break;
-            case 'personInCharge':
-              keyChn = '责任人';
-              break;
-            case 'statusUsage':
-              keyChn = '使用状况';
-              break;
-          }
-          theadInfo.theadEng.push(key);
-          theadInfo.theadChn.push(keyChn);
-        }
-      });
-      theadInfo.theadStyle = {
-        'width': (1 / theadInfo.theadEng.length * 100) + '%'
-      };
-      return theadInfo;
-    }
-  }
-})();
-
-(function() {
-  'use strict';
-
-  angular.module('app').component('pagination', component());
-
-  /* @ngInject */
-  function component() {
-    var component = {
-      templateUrl: 'components/pagination/pagination.template.html',
-      controller: paginationCtrl,
-      bindings: {
-        data: '<',
-        searchInfo: '<',
-        searchPageSize: '<',
-        searchPageNumber: '<',
-        searchUrl: '<',
-        lastSearchRecord: '<',
-        searchPageNumberChange: '&',
-        searchAction: '&'
-      }
-    };
-
-    return component;
-  }
-
-  paginationCtrl.$inject = [];
-
-  /* @ngInject */
-  function paginationCtrl() {
-    var self = this;
-    self.$onChanges = function(changes) {
-      if (changes.searchPageSize && !changes.searchPageSize.isFirstChange()) {
-        self.searchAction({
-          searchType: self.lastSearchRecord.searchType,
-          searchKeyWord: self.lastSearchRecord.searchKeyWord,
-          assetCategory: self.lastSearchRecord.assetCategory,
-          departmentResponsibility: self.lastSearchRecord.departmentResponsibility,
-          pageNum: 1,
-          url: self.searchUrl
-        });
-      }
-      if (changes.searchPageNumber && !changes.searchPageNumber.isFirstChange()) {
-        self.searchAction({
-          searchType: self.lastSearchRecord.searchType,
-          searchKeyWord: self.lastSearchRecord.searchKeyWord,
-          assetCategory: self.lastSearchRecord.assetCategory,
-          departmentResponsibility: self.lastSearchRecord.departmentResponsibility,
-          pageNum: self.searchInfo.searchPageNumber,
-          url: self.searchUrl
-        });
-      }
-    }
-  }
-})();
-
-(function() {
-  'use strict';
-
-  angular.module('app').component('searchGroup', component());
-
-  /* @ngInject */
-  function component() {
-    var component = {
-      templateUrl: 'components/search-group/search-group.template.html',
-      controller: searchGroupCtrl,
-      bindings: {
-        searchType: '<',
-        searchInfo: '<',
-        lastSearchRecord: '<',
-        searchUrl: '<',
-        searchAction: "&"
-      }
-    };
-
-    return component;
-  }
-
-  searchGroupCtrl.$inject = ['$timeout', 'interfacesService', 'httpService'];
-
-  /* @ngInject */
-  function searchGroupCtrl($timeout, interfacesService, httpService) {
-    var self = this;
-    var autoSearchResult;
-    var lastAutoSearchKeyWord;
-    // self.$onInit = function(){
-    self.departmentArray = []
-    self.categoryArray = []
-    self.autoCompleteArray = []
-    self.showAutoComplete = false
-    // }
-    self.$onChanges = function(changes) {
-      if (changes.searchType)
-        self.searchInfo.searchKeyWord = '';
-    };
-
-    self.getDeptAndCateArray = getDeptAndCateArray;
-    self.autoSearch = autoSearch;
-    self.createAutoCompleteArray = createAutoCompleteArray;
-    self.selectAutoCompleteItem = selectAutoCompleteItem;
-    self.hide = hide;
-
-    self.getDeptAndCateArray(interfacesService.getDepartment, 'department');
-    self.getDeptAndCateArray(interfacesService.getCategory, 'category');
-
-    // 删除两边空格
-    function trim(string) {
-      return string.replace(/(^\s*)|(\s*$)/g, "");
-    }
-    // 获取部门和资产类别信息
-    function getDeptAndCateArray(url, param) {
-      httpService.getRequest(url).then(function(response) {
-        if (response.data.status == 0) {
-          self[param + 'Array'] = response.data.data;
-        }
-      })
-    }
-    // 由keyup触发，发起请求
-    function autoSearch() {
-      lastAutoSearchKeyWord = '';
-      if (self.searchInfo.searchType == "assetId")
-        return;
-      var keyWord = trim(self.searchInfo.searchKeyWord);
-      self.showAutoComplete = true;
-      if (!keyWord) {
-        self.autoCompleteArray = [];
-        return
-      }
-      if (keyWord && lastAutoSearchKeyWord !== keyWord) {
-        lastAutoSearchKeyWord = keyWord;
-        httpService.getTableInfoRequest(interfacesService[self.searchUrl], self.searchInfo.searchType, keyWord, '', '', 1, 99).then(function(response) {
-          if (response.status == 200 && response.data.data.list) {
-            autoSearchResult = response.data.data.list;
-            self.createAutoCompleteArray();
-          }
-        })
-      }
-    }
-    // 由返回数据生成模糊搜索列表
-    function createAutoCompleteArray() {
-      self.autoCompleteArray = [];
-      if (autoSearchResult.length) {
-        var key = self.searchInfo.searchType;
-        for (var i = 0; i < autoSearchResult.length; i++) {
-          if (autoSearchResult[i][key] && self.autoCompleteArray.indexOf(autoSearchResult[i][key]) === -1) {
-            self.autoCompleteArray.push(autoSearchResult[i][key])
-          }
-        }
-      }
-    }
-    // 点击触发搜索
-    function selectAutoCompleteItem(item) {
-      self.showAutoComplete = false;
-      self.autoCompleteArray = [];
-      self.searchInfo.searchKeyWord = item;
-      self.searchAction({searchType: self.searchInfo.searchType, searchKeyWord: item, assetCategory: '', departmentResponsibility: '', pageNum: 1})
-    }
-    // 隐藏模糊搜索列表
-    function hide() {
-      if (self.showAutoComplete === true)
-        $timeout(function() {
-          self.showAutoComplete = false;
-          self.autoCompleteArray = [];
-          lastAutoSearchKeyWord = '';
-        }, 200)
-    }
-
-  }
-})();
-
-(function() {
-  'use strict';
-
-  angular.module('app').component('selectMenu', component());
-
-  /* @ngInject */
-  function component() {
-    var component = {
-      templateUrl: 'components/select-menu/select-menu.template.html',
-      controller: selectMenuCtrl,
-      bindings: {
-        searchInfo: '<',
-        inventoryType: '<',
-        selectList: '<',
-        action: '&'
-      }
-    };
-
-    return component;
-  }
-
-  selectMenuCtrl.$inject = [];
-
-  /* @ngInject */
-  function selectMenuCtrl() {
-    var self = this
-    self.$onChanges = function(changes) {
-      if (changes.inventoryType && !changes.inventoryType.isFirstChange()) {
-        self.action({
-          searchType: '',
-          searchKeyWord: '',
-          assetCategory: '',
-          departmentResponsibility: '',
-          pageNum: 1,
-          url: self.searchInfo.inventoryType
-        });
-      }
-    }
-
-  }
-})();
-
-(function() {
-  'use strict';
-
-  angular.module('app').component('warningModal', component());
-
-  /* @ngInject */
-  function component() {
-    var component = {
-      templateUrl: 'components/warning-modal/warning-modal.template.html',
-      controller: warningModalCtrl,
-      bindings: {
-        modalTitle: '@',
-        showModal: '=',
-        clean: '&'
-      },
-      transclude: {
-        'div': '?modalDiv',
-        'text': '?modalText',
-        'reminder': '?modalReminder'
-      }
-    };
-
-    return component;
-  }
-
-  warningModalCtrl.$inject = [];
-
-  /* @ngInject */
-  function warningModalCtrl() {}
-})();
-
-(function() {
-  'use strict';
-
   angular.module('app').component('assetInventory', component());
 
   /* @ngInject */
@@ -1595,6 +1595,168 @@ function cardCollapseDirective() {
 (function() {
   'use strict';
 
+  angular.module('app').component('cdManagement', component());
+
+  /* @ngInject */
+  function component() {
+    var component = {
+      templateUrl: 'pages/cd-management/cd-management.template.html',
+      controller: cdManagementCtrl
+    };
+
+    return component;
+  }
+
+  cdManagementCtrl.$inject = ['interfacesService', 'httpService', 'SweetAlert'];
+
+  /* @ngInject */
+  function cdManagementCtrl(interfacesService, httpService, SweetAlert) {
+    var self = this
+    self.departmentLoading = false;
+    self.categoryLoading = false;
+    self.departmentArray = [];
+    self.categoryArray = [];
+    self.deptShowPencilLable = 999;
+    self.catShowPencilLable = 999;
+    self.addDepartmentInput = '';
+    self.addCategoryInput = '';
+    self.selectedItem = {};
+    self.modalInfo = {
+      showDepartmentModal: false,
+      showCategoryModal: false
+    };
+
+    // function
+    self.showModal = showModal
+    self.getDatas = getDatas
+    self.deleteDatas = deleteDatas
+    self.addDepartment = addDepartment
+    self.updateDepartment = updateDepartment
+    self.addCategory = addCategory
+    self.updateCategory = updateCategory
+
+    self.getDatas('department', 'Department')
+    self.getDatas('category', 'Category')
+
+    // 显示模态框
+    function showModal(item, param) {
+      self.modalInfo['show' + param + 'Modal'] = true;
+      self.selectedItem = item;
+    };
+    // 获取
+    function getDatas(param, Param) {
+      self[param + 'Loading'] = true;
+      httpService.getRequest(interfacesService['get' + Param]).then(function(response) {
+        if (response.data.status == 0) {
+          self[param + 'Array'] = response.data.data;
+        } else {
+          self[param + 'Array'] = [];
+        }
+        self[param + 'Loading'] = false;
+      }).catch(function(response) {
+        self[param + 'Loading'] = false;
+        SweetAlert.swal({title: "服务器出错了", text: response.statusText, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+      });
+    };
+    // 删除
+    function deleteDatas(param, Param) {
+      var data = {
+        'id': self.selectedItem['id']
+      };
+      httpService.formPostRequest(interfacesService['delete' + Param], data).then(function(response) {
+        if (response.data.status == 0) {
+          SweetAlert.swal("删除成功", response.data.msg, "success");
+          self.modalInfo['show' + Param + 'Modal'] = false;
+          self.getDatas(param, Param);
+        } else {
+          SweetAlert.swal({title: "删除失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+          self.modalInfo['show' + Param + 'Modal'] = false;
+        }
+      }).catch(function(response) {
+        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+      });
+    };
+    // 增加
+    function addDepartment() {
+      var data = {
+        'departmentName': self.addDepartmentInput
+      };
+      httpService.formPostRequest(interfacesService.addDepartment, data).then(function(response) {
+        if (response.data.status == 0) {
+          SweetAlert.swal("增加成功", response.data.msg, "success");
+          self.modalInfo.showDepartmentModal = false;
+          self.getDatas('department', 'Department');
+        } else {
+          SweetAlert.swal({title: "增加失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+          self.modalInfo.showDepartmentModal = false;
+        }
+      }).catch(function(response) {
+        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+      });
+    };
+    // 编辑
+    function updateDepartment() {
+      var data = {
+        'id': self.selectedItem['id'],
+        'departmentName': self.selectedItem['departmentName']
+      };
+      httpService.formPostRequest(interfacesService.updateDepartment, data).then(function(response) {
+        if (response.data.status == 0) {
+          SweetAlert.swal("编辑成功", response.data.msg, "success");
+          self.modalInfo.showDepartmentModal = false;
+          self.getDatas('department', 'Department');
+        } else {
+          SweetAlert.swal({title: "编辑失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+          self.modalInfo.showDepartmentModal = false;
+        }
+      }).catch(function(response) {
+        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+      });
+    };
+    // 增加
+    function addCategory() {
+      var data = {
+        'categoryName': self.addCategoryInput
+      };
+      httpService.formPostRequest(interfacesService.addCategory, data).then(function(response) {
+        if (response.data.status == 0) {
+          SweetAlert.swal("增加成功", response.data.msg, "success");
+          self.modalInfo.showCategoryModal = false;
+          self.getDatas('category', 'Category');
+        } else {
+          SweetAlert.swal({title: "增加失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+          self.modalInfo.showCategoryModal = false;
+        }
+      }).catch(function(response) {
+        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+      });
+    };
+    // 编辑
+    function updateCategory() {
+      var data = {
+        'id': self.selectedItem['id'],
+        'categoryName': self.selectedItem['categoryName']
+      };
+      httpService.formPostRequest(interfacesService.updateCategory, data).then(function(response) {
+        if (response.data.status == 0) {
+          SweetAlert.swal("编辑成功", response.data.msg, "success");
+          self.modalInfo.showCategoryModal = false;
+          self.getDatas('category', 'Category');
+        } else {
+          SweetAlert.swal({title: "编辑失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+          self.modalInfo.showCategoryModal = false;
+        }
+      }).catch(function(response) {
+        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+      });
+    };
+
+  }
+})();
+
+(function() {
+  'use strict';
+
   angular.module('app').component('assetSearch', component());
 
   /* @ngInject */
@@ -1731,6 +1893,7 @@ function cardCollapseDirective() {
       self.loading = true;
       httpService.getTableInfoRequest(interfacesService.getAssetUrl, searchType, searchKeyWord, assetCategory, departmentResponsibility, pageNum, self.searchInfo.searchPageSize).then(function(response) {
         if (response.status == 200 && response.data.data.list) {
+          console.log('666')
           lastSearchRecord.searchType = searchType;
           lastSearchRecord.searchKeyWord = searchKeyWord;
           lastSearchRecord.assetCategory = assetCategory;
@@ -1925,168 +2088,6 @@ function cardCollapseDirective() {
         self.importModalInitialize();
       }
     }
-
-  }
-})();
-
-(function() {
-  'use strict';
-
-  angular.module('app').component('cdManagement', component());
-
-  /* @ngInject */
-  function component() {
-    var component = {
-      templateUrl: 'pages/cd-management/cd-management.template.html',
-      controller: cdManagementCtrl
-    };
-
-    return component;
-  }
-
-  cdManagementCtrl.$inject = ['interfacesService', 'httpService', 'SweetAlert'];
-
-  /* @ngInject */
-  function cdManagementCtrl(interfacesService, httpService, SweetAlert) {
-    var self = this
-    self.departmentLoading = false;
-    self.categoryLoading = false;
-    self.departmentArray = [];
-    self.categoryArray = [];
-    self.deptShowPencilLable = 999;
-    self.catShowPencilLable = 999;
-    self.addDepartmentInput = '';
-    self.addCategoryInput = '';
-    self.selectedItem = {};
-    self.modalInfo = {
-      showDepartmentModal: false,
-      showCategoryModal: false
-    };
-
-    // function
-    self.showModal = showModal
-    self.getDatas = getDatas
-    self.deleteDatas = deleteDatas
-    self.addDepartment = addDepartment
-    self.updateDepartment = updateDepartment
-    self.addCategory = addCategory
-    self.updateCategory = updateCategory
-
-    self.getDatas('department', 'Department')
-    self.getDatas('category', 'Category')
-
-    // 显示模态框
-    function showModal(item, param) {
-      self.modalInfo['show' + param + 'Modal'] = true;
-      self.selectedItem = item;
-    };
-    // 获取
-    function getDatas(param, Param) {
-      self[param + 'Loading'] = true;
-      httpService.getRequest(interfacesService['get' + Param]).then(function(response) {
-        if (response.data.status == 0) {
-          self[param + 'Array'] = response.data.data;
-        } else {
-          self[param + 'Array'] = [];
-        }
-        self[param + 'Loading'] = false;
-      }).catch(function(response) {
-        self[param + 'Loading'] = false;
-        SweetAlert.swal({title: "服务器出错了", text: response.statusText, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-      });
-    };
-    // 删除
-    function deleteDatas(param, Param) {
-      var data = {
-        'id': self.selectedItem['id']
-      };
-      httpService.formPostRequest(interfacesService['delete' + Param], data).then(function(response) {
-        if (response.data.status == 0) {
-          SweetAlert.swal("删除成功", response.data.msg, "success");
-          self.modalInfo['show' + Param + 'Modal'] = false;
-          self.getDatas(param, Param);
-        } else {
-          SweetAlert.swal({title: "删除失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-          self.modalInfo['show' + Param + 'Modal'] = false;
-        }
-      }).catch(function(response) {
-        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-      });
-    };
-    // 增加
-    function addDepartment() {
-      var data = {
-        'departmentName': self.addDepartmentInput
-      };
-      httpService.formPostRequest(interfacesService.addDepartment, data).then(function(response) {
-        if (response.data.status == 0) {
-          SweetAlert.swal("增加成功", response.data.msg, "success");
-          self.modalInfo.showDepartmentModal = false;
-          self.getDatas('department', 'Department');
-        } else {
-          SweetAlert.swal({title: "增加失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-          self.modalInfo.showDepartmentModal = false;
-        }
-      }).catch(function(response) {
-        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-      });
-    };
-    // 编辑
-    function updateDepartment() {
-      var data = {
-        'id': self.selectedItem['id'],
-        'departmentName': self.selectedItem['departmentName']
-      };
-      httpService.formPostRequest(interfacesService.updateDepartment, data).then(function(response) {
-        if (response.data.status == 0) {
-          SweetAlert.swal("编辑成功", response.data.msg, "success");
-          self.modalInfo.showDepartmentModal = false;
-          self.getDatas('department', 'Department');
-        } else {
-          SweetAlert.swal({title: "编辑失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-          self.modalInfo.showDepartmentModal = false;
-        }
-      }).catch(function(response) {
-        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-      });
-    };
-    // 增加
-    function addCategory() {
-      var data = {
-        'categoryName': self.addCategoryInput
-      };
-      httpService.formPostRequest(interfacesService.addCategory, data).then(function(response) {
-        if (response.data.status == 0) {
-          SweetAlert.swal("增加成功", response.data.msg, "success");
-          self.modalInfo.showCategoryModal = false;
-          self.getDatas('category', 'Category');
-        } else {
-          SweetAlert.swal({title: "增加失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-          self.modalInfo.showCategoryModal = false;
-        }
-      }).catch(function(response) {
-        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-      });
-    };
-    // 编辑
-    function updateCategory() {
-      var data = {
-        'id': self.selectedItem['id'],
-        'categoryName': self.selectedItem['categoryName']
-      };
-      httpService.formPostRequest(interfacesService.updateCategory, data).then(function(response) {
-        if (response.data.status == 0) {
-          SweetAlert.swal("编辑成功", response.data.msg, "success");
-          self.modalInfo.showCategoryModal = false;
-          self.getDatas('category', 'Category');
-        } else {
-          SweetAlert.swal({title: "编辑失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-          self.modalInfo.showCategoryModal = false;
-        }
-      }).catch(function(response) {
-        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-      });
-    };
 
   }
 })();
