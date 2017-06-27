@@ -1,0 +1,121 @@
+@import 'layout/app-sidebar/sidebar.less';
+@import 'components/pagination/pagination.less';
+@import 'components/search-group/search-group.less';
+@import 'components/asset-table/asset-table.less';
+@import 'components/asset-modal/asset-modal.less';
+@import 'pages/main/main.less';
+@import 'pages/asset-search/asset-search.less';
+@import 'pages/asset-recovery/asset-recovery.less';
+@import 'pages/asset-inventory/asset-inventory.less';
+@import 'pages/cd-management/cd-management.less';
+@import 'style/property.less';
+@import 'style/variable.less';
+
+body,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: "Helvetica Neue", "Luxi Sans", "DejaVu Sans", Tahoma, "Hiragino Sans GB", STHeiti, "Microsoft YaHei" !important;
+}
+
+button {
+    cursor: pointer;
+}
+
+ul {
+    list-style: none;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.form-control {
+  height: 35px !important;
+}
+
+.clearfix {
+    *zoom: 1;
+}
+
+.clearfix:after,
+.clearfix:before {
+    display: table;
+    line-height: 0;
+    content: "";
+}
+
+.clearfix:after {
+    clear: both;
+}
+
+.transition-ease {
+    -o-transition: all 0.5s ease;
+    -ms-transition: all 0.5s ease;
+    -moz-transition: all 0.5s ease;
+    -webkit-transition: all 0.5s ease;
+}
+
+.select-none {
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    -khtml-user-select: none;
+    user-select: none;
+}
+
+.ng-enter {
+    transition: 0.5s linear all;
+    opacity: 0;
+}
+
+.ng-enter-active {
+    opacity: 1;
+}
+
+.container-fluid {
+    padding-right: 15px;
+    padding-left: 15px;
+}
+
+.showModal {
+    display: block !important;
+    opacity: 1 !important;
+}
+
+.modal {
+    .modal-dialog {
+        margin: 232px auto;
+
+        .modal-content {
+            .modal-body {
+                max-height: 300px;
+                overflow-y: scroll;
+
+                .modal-row {
+                    margin-top: 15px;
+                    padding: 0 40px;
+                }
+
+                form {
+                    .form-group {
+                        position: relative;
+
+                        input.form-control {
+                            &.ng-invalid {
+                                &+span {
+                                    position: absolute;
+                                    top: 8px;
+                                    right: -80px;
+                                    text-align: right;
+                                    color: red;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

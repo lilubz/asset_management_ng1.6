@@ -1,0 +1,21 @@
+<div id="warning_modal" table-index="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="close" type="button" ng-click="$ctrl.showModal=false; $ctrl.clean()">×</button>
+                <h5 class="modal-title" ng-bind="$ctrl.modalTitle"></h5>
+            </div>
+            <div class="modal-body">
+                <div class="ta-c ">
+                    <h5 ng-transclude="text" style="margin:20px 0 10px"></h5>
+                    <p ng-transclude="reminder">&nbsp;</p>
+                    <div ng-transclude="div"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" type="button" ng-click="$ctrl.showModal=false; $ctrl.clean()"><span>取消</span></button>
+                <ng-transclude></ng-transclude>
+            </div>
+        </div>
+    </div>
+</div>

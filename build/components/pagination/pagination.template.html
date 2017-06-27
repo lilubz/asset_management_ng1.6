@@ -1,0 +1,50 @@
+<div class="asset-pagination">
+    <div class="fixed-table-pagination">
+        <div class="pull-left pagination pagination-detail">
+            <span class="pagination-info" ng-bind="'显示第 '+(($ctrl.data.pageNum-1)*$ctrl.data.pageSize+1)+' 到第'+(($ctrl.data.pageNum-1)*$ctrl.data.pageSize+$ctrl.data.list.length)+' 条记录，总共 '+$ctrl.data.total+' 条记录'"></span>
+            <span class="page-list">每页显示
+          <span class="btn-group dropup">
+          <select class="form-control" name="searchPageSize" ng-model="$ctrl.searchInfo.searchPageSize">
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="15">15</option>
+            <option value="20">20</option>
+            <option value="25">25</option>
+            <option value="30">30</option>
+          </select>
+        </span> 条记录</span>
+        </div>
+        <div class="pull-right">
+            <ul class="pagination">
+                <li class="page-first" title="去第一页">
+                    <a href="javascript:void(0)" ng-class="{'disable':(!$ctrl.data.hasPreviousPage)}" ng-click="$ctrl.searchPageNumberChange({searchPageNumber: 1})" ng-disable="$ctrl.data.pageNum==1">‹‹</a>
+                </li>
+                <li class="page-pre" title="去上一页">
+                    <a href="javascript:void(0)" ng-class="{'disable':(!$ctrl.data.hasPreviousPage)}" ng-click="$ctrl.searchPageNumberChange({searchPageNumber: $ctrl.data.pageNum-1})">‹</a>
+                </li>
+                <li class="page-number" ng-show="!$ctrl.data.hasNextPage && $ctrl.data.pages>2">
+                    <a href="javascript:void(0)" ng-bind="$ctrl.data.prePage-1" ng-click="$ctrl.searchPageNumberChange({searchPageNumber: $ctrl.data.prePage-1})"></a>
+                </li>
+                <li class="page-number" ng-show="$ctrl.data.hasPreviousPage">
+                    <a href="javascript:void(0)" ng-bind="$ctrl.data.prePage" ng-click="$ctrl.searchPageNumberChange({searchPageNumber: $ctrl.data.prePage})"></a>
+                </li>
+                <li class="page-number active">
+                    <a href="javascript:void(0)" ng-show="$ctrl.data.pageNum" ng-bind="$ctrl.data.pageNum"></a>
+                </li>
+                <li class="page-number" ng-show="$ctrl.data.hasNextPage">
+                    <a href="javascript:void(0)" ng-bind="$ctrl.data.nextPage" ng-click="$ctrl.searchPageNumberChange({searchPageNumber: $ctrl.data.nextPage})"></a>
+                </li>
+                <li class="page-number" ng-show="!$ctrl.data.hasPreviousPage && $ctrl.data.pages>2">
+                    <a href="javascript:void(0)" ng-bind="$ctrl.data.nextPage+1" ng-click="$ctrl.searchPageNumberChange({searchPageNumber: $ctrl.data.nextPage+1})"></a>
+                </li>
+                <li class="page-next" title="去下一页">
+                    <a href="javascript:void(0)" ng-class="{'disable':(!$ctrl.data.hasNextPage)}" ng-click="$ctrl.searchPageNumberChange({searchPageNumber: $ctrl.data.pageNum+1})">›</a>
+                </li>
+                <li class="page-last" title="去最后一页">
+                    <a href="javascript:void(0)" ng-class="{'disable':(!$ctrl.data.hasNextPage)}" ng-click="$ctrl.searchPageNumberChange({searchPageNumber: $ctrl.data.pages})" ng-disable="$ctrl.data.pageNum==$ctrl.data.pages">››</a>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+</div>

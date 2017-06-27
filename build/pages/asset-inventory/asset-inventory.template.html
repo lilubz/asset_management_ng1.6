@@ -1,0 +1,82 @@
+<div class="asset-inventory">
+    <div class="panel panel-default">
+        <div class="panel-body">
+          <div class="row">
+              <div class="col-md-12">
+                  <div class="card">
+                      <div class="card-header">
+                          <i class="fa fa-align-justify"></i> 搜索
+                      </div>
+                      <div class="card-block">
+                        <div class="row">
+                            <div class="form-group col-md-12">
+                              <div class="col-sm-1 f-r">
+                                  <select-menu search-info="$ctrl.searchInfo" inventory-type="$ctrl.searchInfo.inventoryType" select-list="$ctrl.selectList" action="$ctrl.getInventory(searchType, searchKeyWord, assetCategory, departmentResponsibility, pageNum, url)"></select-menu>
+                              </div>
+                              <label class="form-control-label col-sm-6" for="input-asset-id">资产盘点操作</label>
+                              <div class="col-sm-3">
+                                  <div class="input-group">
+                                    <input id="input-asset-id" type="text" class="form-control" placeholder="请输入资产编号" ng-model="$ctrl.assetId">
+                                    <span class="input-group-btn">
+                                      <button class="btn btn-primary" ng-click="$ctrl.assetInventory()">
+                                          <span class="fa fa-shopping-cart"></span>
+                                          <span>盘点</span>
+                                      </button>
+                                      <button class="btn btn-danger" ng-click="$ctrl.modalInfo.showModal=true">
+                                          <span class="fa fa-trash"></span>
+                                          <span>清空盘点</span>
+                                      </button>
+                                    </span>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                      <search-group search-type="$ctrl.searchInfo.searchType" search-info="$ctrl.searchInfo" last-search-record="$ctrl.lastSearchRecord" search-url="$ctrl.searchInfo.inventoryType" search-action="$ctrl.getInventory(searchType, searchKeyWord, assetCategory, departmentResponsibility, pageNum, url)"></search-group>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+              <div class="card">
+                  <div class="card-header">
+                      <i class="fa fa-align-justify"></i> 资产信息
+                  </div>
+                  <div class="card-block">
+                    <div class="bootstrap-table">
+                        <div class="fixed-table-toolbar"></div>
+                        <div class="fixed-table-container" style="padding-bottom: 0px;">
+                            <div class="fixed-table-header"></div>
+                            <div class="fixed-table-body">
+                                <div class="fixed-table-loading ta-c" ng-show="$ctrl.loading">
+                                    <img src="./image/loading1.gif" alt="">
+                                </div>
+                                <div class="fixed-table-loading ta-c" ng-show="$ctrl.data && !$ctrl.data.list.length && !$ctrl.loading">
+                                    <h3>查不到此信息</h3>
+                                </div>
+                                <asset-table ng-show="$ctrl.data && $ctrl.data.list.length && !$ctrl.loading" data="$ctrl.data" thead-info="$ctrl.theadInfo" has-checkbox="false">
+                                    <table-button>
+                                        <span class="label label-warning" ng-show="!$parent.item.inventoryAmount">未盘点</span>
+                                        <span class="label label-info" ng-show="$parent.item.inventoryAmount">已盘点</span>
+                                    </table-button>
+                                </asset-table>
+                            </div>
+                            <div class="fixed-table-footer" ng-show="$ctrl.data && $ctrl.data.list.length && !$ctrl.loading">
+                                <pagination data="$ctrl.data" search-info="$ctrl.searchInfo" search-page-size="$ctrl.searchInfo.searchPageSize" search-page-number="$ctrl.searchInfo.searchPageNumber" search-url="$ctrl.searchInfo.inventoryType" last-search-record="$ctrl.lastSearchRecord" search-page-number-change="$ctrl.searchPageNumberChange(searchPageNumber)" search-action="$ctrl.getInventory(searchType, searchKeyWord, assetCategory, departmentResponsibility, pageNum, url)"></pagination>
+                            </div>
+                        </div>
+                    </div>
+                  </div>
+              </div>
+              <div class="clearfix"></div>
+          </div>
+      </div>
+  </div>
+</div>
+<!-- 清空资产盘点模态框 -->
+<warning-modal class="modal fade" ng-class="{'showModal':$ctrl.modalInfo.showModal}" modal-title="警告" show-modal="$ctrl.modalInfo.showModal">
+  <modal-text>确认清空资产盘点？</modal-text>
+  <modal-reminder>(注意：所有资产的盘点数量将变为0，且不能恢复)</modal-reminder>
+  <button class="btn btn-danger" type="button" ng-click="$ctrl.clearInventoryAmount()"><span>确认清空</span></button>
+</warning-modal>
+</div>

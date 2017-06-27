@@ -1,0 +1,23 @@
+<div class="sidebar">
+    <nav class="sidebar-nav">
+        <ul class="nav">
+            <li class="nav-item nav-dropdown" ng-class="{open: $ctrl.currentState.includes('main.assetManagement')}">
+                <a class="nav-link nav-dropdown-toggle" ng-class="{active: $ctrl.currentState.includes('assetManagement')}" href="#"><i class="fa fa-bank"></i> 资产管理</a>
+                <ul class="nav-dropdown-items">
+                    <li class="nav-item">
+                        <a class="nav-link" ui-sref-active="active" ui-sref="main.assetManagement.assetSearch"><i class="icon-puzzle"></i> 资产查询</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" ui-sref-active="active" ui-sref="main.assetManagement.assetRecovery"><i class="icon-puzzle"></i> 资产恢复</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" ui-sref-active="active" ui-sref="main.assetManagement.assetsInventory"><i class="icon-puzzle"></i> 资产盘点</a>
+                    </li>
+                </ul>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" ui-sref-active="active" ui-sref="main.cdManagement"><i class="fa fa-tags"></i> 类属管理</a>
+            </li>
+        </ul>
+    </nav>
+</div>

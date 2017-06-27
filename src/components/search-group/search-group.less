@@ -1,0 +1,32 @@
+.search-group {
+  .row {
+    margin-bottom: 15px;
+  }
+    .search-input-wrapper {
+        position: relative;
+
+        .auto-complete {
+            position: absolute;
+            z-index: 9;
+            right: 79px;
+            left: 0;
+            top: 35px;
+            min-height: 30px;
+            min-height: 30px;
+            border: 1px solid #DDD;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.5);
+            background: #fff;
+            color: #555;
+
+            ul {
+                li {
+                    padding: 6px 12px;
+                    cursor: pointer;
+                }
+                .auto-complete-item:hover{
+                  background-color: #f5f5f5
+                }
+            }
+        }
+    }
+}

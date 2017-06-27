@@ -1,0 +1,101 @@
+<div class="cd-management">
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fa fa-align-justify"></i> 部门管理
+                        </div>
+                        <div class="card-block">
+                            <div class="form-group">
+                                <label class="form-control-label col-sm-6" for="input-add-department">新增部门</label>
+                                <div class="col-sm-3">
+                                    <div class="input-group">
+                                        <input id="input-add-department" type="text" class="form-control" name="input-add-department" ng-model="$ctrl.addDepartmentInput" placeholder="请输入部门名称">
+                                        <span class="input-group-btn">
+                                        <button class="btn btn-primary d-ib" type="button" name="button" ng-click="$ctrl.addDepartment()">
+                                            <span class="fa fa-plus"></span>
+                                            <span>添加</span>
+                                        </button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="loading ta-c" ng-show="$ctrl.departmentLoading">
+                                    <img src="./image/loading1.gif" alt="">
+                                </div>
+                                <div class="loading ta-c" ng-show="!$ctrl.departmentArray.length && !$ctrl.departmentLoading">
+                                    <h5>查不到此信息</h5>
+                                </div>
+                                <div class="col-md-3 col-sm-4 col-xs-6 ta-c" ng-repeat="item in $ctrl.departmentArray" ng-show="$ctrl.departmentArray.length && !$ctrl.departmentLoading">
+                                    <div class="dept-box" ng-mouseover="$ctrl.deptShowPencilLable=$index" ng-mouseleave="$ctrl.deptShowPencilLable=999" ng-click="$ctrl.showModal(item, 'Department')">
+                                        <span class="dept-name" ng-bind="item.departmentName"></span>
+                                        <span class="fa fa-pencil" ng-show="$ctrl.deptShowPencilLable===$index"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fa fa-align-justify"></i> 类别管理
+                        </div>
+                        <div class="card-block">
+                            <div class="form-group">
+                                <label class="form-control-label col-sm-6" for="input-add-category">新增类别</label>
+                                <div class="col-sm-3">
+                                    <div class="input-group">
+                                        <input id="input-add-category" type="text" class="form-control" name="input-add-category" ng-model="$ctrl.addCategoryInput" placeholder="请输入类别名称">
+                                        <span class="input-group-btn">
+                                          <button class="btn btn-primary" type="button" name="button" ng-click="$ctrl.addCategory()">
+                                              <span class="fa fa-plus"></span>
+                                              <span>添加</span>
+                                        </button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="loading ta-c" ng-show="$ctrl.categoryLoading">
+                                    <img src="./image/loading1.gif" alt="">
+                                </div>
+                                <div class="loading ta-c" ng-show="!$ctrl.categoryArray.length && !$ctrl.categoryLoading">
+                                    <h5>查不到此信息</h5>
+                                </div>
+                                <div class="col-md-3 col-sm-4 col-xs-6 ta-c" ng-repeat="item in $ctrl.categoryArray" ng-show="$ctrl.categoryArray.length && !$ctrl.categoryLoading">
+                                    <div class="dept-box" ng-mouseover="$ctrl.catShowPencilLable=$index" ng-mouseleave="$ctrl.catShowPencilLable=999" ng-click="$ctrl.showModal(item, 'Category')">
+                                        <span class="dept-name" ng-bind="item.categoryName"></span>
+                                        <span class="fa fa-pencil" ng-show="$ctrl.catShowPencilLable===$index"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- 修改/删除部门模态框 -->
+        <warning-modal class="modal fade" ng-class="{'showModal':$ctrl.modalInfo.showDepartmentModal}" modal-title="编辑部门信息" show-modal="$ctrl.modalInfo.showDepartmentModal">
+            <modal-text>修改/删除部门</modal-text>
+            <modal-div><input class="form-control" type="text" name="" ng-model="$ctrl.selectedItem.departmentName"></modal-div>
+            <button class="btn btn-primary" type="button" ng-click="$ctrl.updateDepartment()"><span></span>确认修改</button>
+            <button class="btn btn-danger f-l" type="button" ng-click="$ctrl.deleteDatas('department', 'Department')"><span>确认删除</span></button>
+        </warning-modal>
+        <!-- 修改/删除类别模态框 -->
+        <warning-modal class="modal fade" ng-class="{'showModal':$ctrl.modalInfo.showCategoryModal}" modal-title="编辑类别信息" show-modal="$ctrl.modalInfo.showCategoryModal">
+            <modal-text>修改/删除类别</modal-text>
+            <modal-div><input class="form-control" type="text" name="" ng-model="$ctrl.selectedItem.categoryName"></modal-div>
+            <button class="btn btn-primary" type="button" ng-click="$ctrl.updateCategory()"><span></span>确认修改</button>
+            <button class="btn btn-danger f-l" type="button" ng-click="$ctrl.deleteDatas('category', 'Category')"><span>确认删除</span></button>
+        </warning-modal>
+    </div>

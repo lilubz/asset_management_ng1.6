@@ -1,0 +1,88 @@
+<div id="add_modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="close f-r" type="button" ng-click="$ctrl.showModal=false; $ctrl.clean()">×</button>
+                <h5 ng-bind="$ctrl.modalTitle"></h5>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12 col-sm-12">
+                        <form id="storage_form_add" class="form-horizontal bv-form" role="form" name="formAdd" novalidate="novalidate">
+                            <div class="form-inline">
+                                <label for="assetId" class="control-label col-md-4 col-sm-4">资产Id</label>
+                                <div class="col-md-8 col-sm-8">
+                                    <input type="text" class="form-control" name="assetId" placeholder="资产Id" ng-model="$ctrl.modal.assetId" validator="required" ng-disabled="$ctrl.isDisable">
+                                </div>
+                            </div>
+                            <div class="form-inline">
+                                <label for="assetName" class="control-label col-md-4 col-sm-4">资产名称</label>
+                                <div class="col-md-8 col-sm-8">
+                                    <input type="text" class="form-control" name="assetName" placeholder="资产名称" ng-model="$ctrl.modal.assetName">
+                                </div>
+                            </div>
+                            <div class="form-inline">
+                                <label for="assetCategory" class="control-label col-md-4 col-sm-4">资产类型</label>
+                                <div class="col-md-8 col-sm-8">
+                                    <input type="text" class="form-control" name="assetCategory" placeholder="资产类型" ng-model="$ctrl.modal.assetCategory">
+                                </div>
+                            </div>
+                            <div class="form-inline">
+                                <label for="brandSpecification" class="control-label col-md-4 col-sm-4">资产规格</label>
+                                <div class="col-md-8 col-sm-8">
+                                    <input type="text" class="form-control" name="brandSpecification" placeholder="资产规格" ng-model="$ctrl.modal.brandSpecification">
+                                </div>
+                            </div>
+                            <div class="form-inline">
+                                <label for="unitMeasurement" class="control-label col-md-4 col-sm-4">资产计量单位</label>
+                                <div class="col-md-8 col-sm-8">
+                                    <input type="text" class="form-control" name="unitMeasurement" placeholder="资产计量单位" ng-model="$ctrl.modal.unitMeasurement">
+                                </div>
+                            </div>
+                            <div class="form-inline">
+                                <label for="bookAmount" class="control-label col-md-4 col-sm-4">资产账面值</label>
+                                <div class="col-md-8 col-sm-8">
+                                    <input type="number" class="form-control" name="bookAmount" placeholder="资产账面值(必须为数字)" ng-model="$ctrl.modal.bookAmount" validator="number, required">
+                                </div>
+                            </div>
+                            <div class="form-inline">
+                                <label for="inventoryAmount" class="control-label col-md-4 col-sm-4">资产盘点值</label>
+                                <div class="col-md-8 col-sm-8">
+                                    <input type="number" class="form-control" name="inventoryAmount" placeholder="资产盘点值(必须为数字)" ng-model="$ctrl.modal.inventoryAmount">
+                                </div>
+                            </div>
+                            <div class="form-inline">
+                                <label for="storageLocation" class="control-label col-md-4 col-sm-4">资产存放位置</label>
+                                <div class="col-md-8 col-sm-8">
+                                    <input type="text" class="form-control" name="storageLocation" placeholder="资产存放位置" ng-model="$ctrl.modal.storageLocation">
+                                </div>
+                            </div>
+                            <div class="form-inline">
+                                <label for="departmentResponsibility" class="control-label col-md-4 col-sm-4">资产责任部门</label>
+                                <div class="col-md-8 col-sm-8">
+                                    <input type="text" class="form-control" name="departmentResponsibility" placeholder="资产责任部门" ng-model="$ctrl.modal.departmentResponsibility">
+                                </div>
+                            </div>
+                            <div class="form-inline">
+                                <label for="personInCharge" class="control-label col-md-4 col-sm-4">资产责任人</label>
+                                <div class="col-md-8 col-sm-8">
+                                    <input type="text" class="form-control" name="personInCharge" placeholder="资产责任人" ng-model="$ctrl.modal.personInCharge">
+                                </div>
+                            </div>
+                            <div class="form-inline">
+                                <label for="statusUsage" class="control-label col-md-4 col-sm-4">使用状况</label>
+                                <div class="col-md-8 col-sm-8">
+                                    <input type="text" class="form-control" name="statusUsage" placeholder="资产保管" ng-model="$ctrl.modal.statusUsage">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" type="button" ng-click="$ctrl.showModal=false; $ctrl.clean()"><span>取消</span></button>
+                <button class="btn btn-primary" type="button" ng-click="$ctrl.submit()" validation-submit="formAdd" ng-disabled="!formAdd.$valid"><span ng-bind="$ctrl.btnName"></span></button>
+            </div>
+        </div>
+    </div>
+</div>

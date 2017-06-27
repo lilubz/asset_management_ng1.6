@@ -1,0 +1,44 @@
+.asset-pagination {
+    .fixed-table-pagination {
+        .pagination {
+            vertical-align: top;
+            margin: 20px 0 !important;
+            line-height: 35px;
+
+            &:first-child {
+                margin-right: 10px !important;
+            }
+
+            li {
+                a {
+                    display: block;
+                    text-align: center;
+                    margin: 0 2px;
+                    padding: 6px 0;
+                    width: 34px;
+                    height: 34px;
+                }
+
+                .disable {
+                    cursor: not-allowed;
+                    filter: alpha(opacity=50);
+                    -moz-opacity: 0.5;
+                    background-color: #ddd;
+                    opacity: 0.5;
+
+                    &:hover {
+                        cursor: not-allowed;
+                    }
+                }
+            }
+
+            li.active {
+                a {
+                    color: #31b0d5 !important;
+                    background-color: #fff;
+                    border-color: #31b0d5;
+                }
+            }
+        }
+    }
+}

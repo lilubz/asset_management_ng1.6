@@ -1,0 +1,28 @@
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th data-field="operation" ng-if="$ctrl.hasCheckbox===true">
+                <div class="th-inner"></div>
+                <div class="fht-cell"></div>
+            </th>
+            <th ng-repeat="key in $ctrl.theadInfo.theadChn">
+                <div class="th-inner" ng-bind="key"></div>
+                <div class="fht-cell"></div>
+            </th>
+            <th data-field="operation">
+                <div class="th-inner"></div>
+                <div class="fht-cell"></div>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr ng-repeat="item in $ctrl.data.list">
+            <td ng-transclude="checkbox" ng-if="$ctrl.hasCheckbox===true"></td>
+            <td ng-repeat="(key,value) in item" ng-if="key!=='createTime'&&key!=='updateTime'">
+                <span ng-if="item[$ctrl.theadInfo.theadEng[$index]] && item[$ctrl.theadInfo.theadEng[$index]]!=='null'" ng-bind="item[$ctrl.theadInfo.theadEng[$index]]"></span>
+                <span ng-if="!item[$ctrl.theadInfo.theadEng[$index]] || item[$ctrl.theadInfo.theadEng[$index]]==='null'">无</span>
+            </td>
+            <td ng-transclude="button"></td>
+        </tr>
+    </tbody>
+</table>

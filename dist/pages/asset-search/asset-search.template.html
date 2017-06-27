@@ -1,0 +1,160 @@
+<div class="asset-search">
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fa fa-align-justify"></i> 搜索
+                        </div>
+                        <div class="card-block">
+                            <search-group search-type="$ctrl.searchInfo.searchType" search-info="$ctrl.searchInfo" last-search-record="$ctrl.lastSearchRecord" search-url="'getAssetUrl'" search-action="$ctrl.searchItem(searchType, searchKeyWord, assetCategory, departmentResponsibility, pageNum)"></search-group>
+                            <div class="btn-group f-r">
+                                <button class="btn btn-sm btn-primary" ng-click="$ctrl.modalInfo.addModal.show=true">
+                                      <span class="fa fa-plus"></span>
+                                      <span>添加资产信息</span>
+                                </button>
+                                <button class="btn btn-sm btn-primary" ng-click="$ctrl.modalInfo.importModal.show=true">
+                                      <span class="fa fa-download"></span>
+                                      <span>导入</span>
+                                </button>
+                                <button class="btn btn-sm btn-primary" ng-click="$ctrl.exportAssetList()">
+                                      <span class="fa fa-upload"></span>
+                                      <span>导出</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fa fa-align-justify"></i> 资产信息
+                        </div>
+                        <div class="card-block">
+                            <div class="bootstrap-table">
+                                <div class="fixed-table-toolbar"></div>
+                                <div class="fixed-table-container" style="padding-bottom: 0px;">
+                                    <div class="fixed-table-header"></div>
+                                    <div class="fixed-table-body">
+                                        <div class="fixed-table-loading ta-c" ng-show="$ctrl.loading">
+                                            <img src="./image/loading1.gif" alt="">
+                                        </div>
+                                        <div class="fixed-table-loading ta-c" ng-show="$ctrl.data && !$ctrl.data.list.length && !$ctrl.loading">
+                                            <h5>查不到此信息</h5>
+                                        </div>
+                                        <asset-table ng-show="$ctrl.data && $ctrl.data.list.length && !$ctrl.loading" data="$ctrl.data" thead-info="$ctrl.theadInfo" first-action="$ctrl.showEditModal(item)" second-action="$ctrl.showDeleteModal(item)" third-action="$ctrl.printQRcode(assetId, assetName)"
+                                            has-checkbox="false">
+                                            <table-button>
+                                                <button class="btn btn-primary btn-sm" ng-click="$parent.$ctrl.firstAction({item: $parent.item})"><span>编辑</span></button>
+                                                <button class="btn btn-danger btn-sm" ng-click="$parent.$ctrl.secondAction({item: $parent.item})"><span>删除</span></button>
+                                                <button class="btn btn-primary btn-sm" ng-click="$parent.$ctrl.thirdAction({assetId: $parent.item.assetId, assetName: $parent.item.assetName})"><span>打印</span></button>
+                                            </table-button>
+                                        </asset-table>
+                                    </div>
+                                    <div class="fixed-table-footer" ng-show="$ctrl.data && $ctrl.data.list.length && !$ctrl.loading">
+                                        <pagination data="$ctrl.data" search-info="$ctrl.searchInfo" search-page-size="$ctrl.searchInfo.searchPageSize" search-page-number="$ctrl.searchInfo.searchPageNumber" last-search-record="$ctrl.lastSearchRecord" search-page-number-change="$ctrl.searchPageNumberChange(searchPageNumber)"
+                                            search-action="$ctrl.searchItem(searchType, searchKeyWord, assetCategory, departmentResponsibility, pageNum)"></pagination>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 添加资产信息模态框 -->
+    <asset-modal class="modal fade" ng-class="{'showModal':$ctrl.modalInfo.addModal.show}" modal-title="添加资产记录" btn-name="提交" modal="$ctrl.modalInfo.modal" is-disable="false" show-modal="$ctrl.modalInfo.addModal.show" clean="$ctrl.clean()" submit="$ctrl.addItem()"></asset-modal>
+    <!-- 编辑资产信息模态框 -->
+    <asset-modal class="modal fade" ng-class="{'showModal':$ctrl.modalInfo.editModal.show}" modal-title="编辑资产记录" btn-name="确认更改" modal="$ctrl.modalInfo.modal" is-disable="true" show-modal="$ctrl.modalInfo.editModal.show" clean="$ctrl.clean()" submit="$ctrl.editItem()"></asset-modal>
+    <!-- 删除提示模态框 -->
+    <warning-modal class="modal fade" ng-class="{'showModal':$ctrl.modalInfo.deleteModal.show}" modal-title="警告" show-modal="$ctrl.modalInfo.deleteModal.show" clean="$ctrl.clean()">
+        <modal-text>确认从资产列表中删除？</modal-text>
+        <modal-reminder>(注意：从列表中后，该条信息将被放入回收站)</modal-reminder>
+        <button class="btn btn-danger" type="button" ng-click="$ctrl.deleteItem()"><span>确认删除</span></button>
+    </warning-modal>
+    <!-- 导出资产信息模态框 -->
+    <warning-modal class="modal fade" ng-class="{'showModal':$ctrl.modalInfo.exportModal.show}" modal-title="导出资产信息" show-modal="$ctrl.modalInfo.exportModal.show" clean="$ctrl.clean()">
+        <modal-text>确认导出资产信息？</modal-text>
+        <a class="d-ib" ng-href="{{$ctrl.exportUrl}}" target="_blank" download="assetRecord.xlsx">
+            <button class="btn btn-primary" type="button" ng-click="$ctrl.modalInfo.exportModal.show=false"><span>确认下载</span></button>
+        </a>
+    </warning-modal>
+
+    <!-- 导入资产信息模态框 -->
+    <div id="import_modal" class="modal fade" table-index="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" ng-class="{'showModal':$ctrl.modalInfo.importModal.show}">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button class="close" type="button" data-dismiss="modal" aria-hidden="true" ng-click="$ctrl.importModalInitialize()">×</button>
+                    <h5 class="modal-title">导入资产信息</h5>
+                </div>
+                <div class="modal-body">
+                    <div id="step1" ng-show="$ctrl.modalInfo.importModal.currentStep==1">
+                        <div class="row modal-row">
+                            <div class="ta-c">
+                                <div>
+                                    <h5>点击下面的下载按钮，下载资产信息电子表格</h5>
+                                </div>
+                                <div style="margin: 30px 0;">
+                                    <a class="btn btn-primary" href="static/assetRecord.xlsx" target="_blank" download="assetRecord.xlsx">
+                                        <span class="glyphicon glyphicon-download" style="color:#fff;"></span>
+                                        <span style=" color:#fff;">下载</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="step2" ng-show="$ctrl.modalInfo.importModal.currentStep==2">
+                        <div class="row modal-row">
+                            <div class="ta-c">
+                                <div>
+                                    <h5>请按照资产信息电子表格中指定的格式填写</h5>
+                                    <p>需要添加的一条或多条资产信息</p>
+                                </div>
+                                <div class="alert alert-info" style="margin: 30px 0">
+                                    <p>注意：表格中各个列均不能为空，若存在未填写的项，则该条信息可能会导入失败</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="step3" ng-show="$ctrl.modalInfo.importModal.currentStep==3">
+                        <div class="row modal-row">
+                            <div class="ta-c">
+                                <div>
+                                    <div>
+                                        <h5>请点击下面上传文件按钮，上传填写好的资产信息电子表格</h5>
+                                        <p style="color:red">只能上传一个以xls或xlsx结尾的文件</p>
+                                    </div>
+                                    <div style="margin: 30px 0">
+                                        <span class="btn btn-primary btn-file">
+                                                <span class="glyphicon glyphicon-upload"></span><span>上传文件</span>
+                                        <input id="file" type="file" name="file" accept=".xls,.xlsx" nv-file-select="" uploader="$ctrl.uploader" multiple>
+                                        </span>
+                                        <div class="file-info" ng-show="$ctrl.uploader.queue.length>0">
+                                            <span>已添加文件：</span>
+                                            <span class="file-name" ng-bind="$ctrl.uploader.queue[0].file.name" style="color:"></span>
+                                        </div>
+                                        <div class="progress progress-striped active" style="margin: 30px 0;" ng-show="$ctrl.uploader.queue[0].progress">
+                                            <div class="progress-bar progress-bar-success" role="progressbar" aria-valuemin="0" aria-valuemax="100" ng-style="{ 'width': $ctrl.uploader.queue[0].progress + '%' }"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-default" type="button" ng-click="$ctrl.importModalInitialize()"><span>取消</span></button>
+                    <button class="btn btn-primary" type="button" ng-show="$ctrl.modalInfo.importModal.currentStep!==1" ng-click="$ctrl.stepChange(-1)"><span>上一步</span></button>
+                    <button class="btn btn-primary" type="button" ng-show="$ctrl.modalInfo.importModal.currentStep<3" ng-click="$ctrl.stepChange(1)"><span>下一步</span></button>
+                    <button class="btn btn-primary" type="button" ng-show="$ctrl.modalInfo.importModal.currentStep===3" ng-click="$ctrl.importAssetList()" ng-disabled="!$ctrl.uploader.queue.length"><span>&nbsp;&nbsp;&nbsp;上传&nbsp;&nbsp;&nbsp;</span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
