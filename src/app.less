@@ -31,8 +31,18 @@ ul {
     margin: 0 !important;
 }
 
+.btn-group {
+    .btn {
+        margin-right: 10px;
+
+        &:last-child {
+            margin-right: 0;
+        }
+    }
+}
+
 .form-control {
-  height: 35px !important;
+    height: 35px !important;
 }
 
 .clearfix {
@@ -99,7 +109,7 @@ ul {
                 }
 
                 form {
-                    .form-group {
+                    .form-inline {
                         position: relative;
 
                         input.form-control {
@@ -107,7 +117,7 @@ ul {
                                 &+span {
                                     position: absolute;
                                     top: 8px;
-                                    right: -80px;
+                                    right: 8px;
                                     text-align: right;
                                     color: red;
                                 }

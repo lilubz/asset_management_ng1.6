@@ -8,6 +8,36 @@
 (function() {
   'use strict';
 
+  angular.module('app').component('assetModal', component());
+
+  /* @ngInject */
+  function component() {
+    var component = {
+      templateUrl: 'components/asset-modal/asset-modal.template.html',
+      controller: assetModalCtrl,
+      bindings: {
+        modalTitle: '@',
+        btnName: '@',
+        isDisable: '<',
+        modal: '<',
+        showModal: '=',
+        clean: '&',
+        submit: "&"
+      }
+    };
+
+    return component;
+  }
+
+  assetModalCtrl.$inject = [];
+
+  /* @ngInject */
+  function assetModalCtrl() {}
+})();
+
+(function() {
+  'use strict';
+
   angular.module('app').component('assetTable', component());
 
   /* @ngInject */
@@ -115,31 +145,56 @@
 (function() {
   'use strict';
 
-  angular.module('app').component('assetModal', component());
+  angular.module('app').component('pagination', component());
 
   /* @ngInject */
   function component() {
     var component = {
-      templateUrl: 'components/asset-modal/asset-modal.template.html',
-      controller: assetModalCtrl,
+      templateUrl: 'components/pagination/pagination.template.html',
+      controller: paginationCtrl,
       bindings: {
-        modalTitle: '@',
-        btnName: '@',
-        isDisable: '<',
-        modal: '<',
-        showModal: '=',
-        clean: '&',
-        submit: "&"
+        data: '<',
+        searchInfo: '<',
+        searchPageSize: '<',
+        searchPageNumber: '<',
+        searchUrl: '<',
+        lastSearchRecord: '<',
+        searchPageNumberChange: '&',
+        searchAction: '&'
       }
     };
 
     return component;
   }
 
-  assetModalCtrl.$inject = [];
+  paginationCtrl.$inject = [];
 
   /* @ngInject */
-  function assetModalCtrl() {}
+  function paginationCtrl() {
+    var self = this;
+    self.$onChanges = function(changes) {
+      if (changes.searchPageSize && !changes.searchPageSize.isFirstChange()) {
+        self.searchAction({
+          searchType: self.lastSearchRecord.searchType,
+          searchKeyWord: self.lastSearchRecord.searchKeyWord,
+          assetCategory: self.lastSearchRecord.assetCategory,
+          departmentResponsibility: self.lastSearchRecord.departmentResponsibility,
+          pageNum: 1,
+          url: self.searchUrl
+        });
+      }
+      if (changes.searchPageNumber && !changes.searchPageNumber.isFirstChange()) {
+        self.searchAction({
+          searchType: self.lastSearchRecord.searchType,
+          searchKeyWord: self.lastSearchRecord.searchKeyWord,
+          assetCategory: self.lastSearchRecord.assetCategory,
+          departmentResponsibility: self.lastSearchRecord.departmentResponsibility,
+          pageNum: self.searchInfo.searchPageNumber,
+          url: self.searchUrl
+        });
+      }
+    }
+  }
 })();
 
 (function() {
@@ -253,61 +308,6 @@
         }, 200)
     }
 
-  }
-})();
-
-(function() {
-  'use strict';
-
-  angular.module('app').component('pagination', component());
-
-  /* @ngInject */
-  function component() {
-    var component = {
-      templateUrl: 'components/pagination/pagination.template.html',
-      controller: paginationCtrl,
-      bindings: {
-        data: '<',
-        searchInfo: '<',
-        searchPageSize: '<',
-        searchPageNumber: '<',
-        searchUrl: '<',
-        lastSearchRecord: '<',
-        searchPageNumberChange: '&',
-        searchAction: '&'
-      }
-    };
-
-    return component;
-  }
-
-  paginationCtrl.$inject = [];
-
-  /* @ngInject */
-  function paginationCtrl() {
-    var self = this;
-    self.$onChanges = function(changes) {
-      if (changes.searchPageSize && !changes.searchPageSize.isFirstChange()) {
-        self.searchAction({
-          searchType: self.lastSearchRecord.searchType,
-          searchKeyWord: self.lastSearchRecord.searchKeyWord,
-          assetCategory: self.lastSearchRecord.assetCategory,
-          departmentResponsibility: self.lastSearchRecord.departmentResponsibility,
-          pageNum: 1,
-          url: self.searchUrl
-        });
-      }
-      if (changes.searchPageNumber && !changes.searchPageNumber.isFirstChange()) {
-        self.searchAction({
-          searchType: self.lastSearchRecord.searchType,
-          searchKeyWord: self.lastSearchRecord.searchKeyWord,
-          assetCategory: self.lastSearchRecord.assetCategory,
-          departmentResponsibility: self.lastSearchRecord.departmentResponsibility,
-          pageNum: self.searchInfo.searchPageNumber,
-          url: self.searchUrl
-        });
-      }
-    }
   }
 })();
 
@@ -504,34 +504,6 @@
   }
 })();
 
-
-(function() {
-  'use strict';
-
-  angular.module('app').component('appSidebar', component());
-
-  /* @ngInject */
-  function component() {
-    var component = {
-      templateUrl: 'layout/app-sidebar/sidebar.template.html',
-      controller: appSidebarCtrl
-    };
-
-    return component;
-  }
-
-  appSidebarCtrl.$inject = ['$rootScope', '$state', '$scope'];
-
-  /* @ngInject */
-  function appSidebarCtrl($rootScope, $state, $scope) {
-    var self = this
-    self.currentState = $state.$current.name
-    $scope.$on('$stateChangeSuccess', function() {
-      self.currentState = $state.$current.name
-    })
-  }
-})();
-
 (function() {
   'use strict';
 
@@ -557,649 +529,31 @@
   }
 })();
 
-(function() {
-  'use strict';
-
-  angular.module('app').config(appLazyLoad);
-
-  appLazyLoad.$inject = ['$ocLazyLoadProvider'];
-
-  /* @ngInject */
-  function appLazyLoad($ocLazyLoadProvider) {
-    var data = {
-      debug: true,
-      events: false,
-      modules: [
-        {
-          name: 'validation',
-          files: ['../vendor/angular-validation/dist/angular-validation.min.js']
-        }
-      ]
-    }
-    $ocLazyLoadProvider.config(data);
-  }
-})();
-
-// 'use strict';
-//
-// angular.module('app').config([
-//   '$ocLazyLoadProvider',
-//   function($ocLazyLoadProvider) {
-//     $ocLazyLoadProvider.config({
-//       debug: true,
-//       events: false,
-//       modules: [
-//         {
-//           name: 'validation',
-//           files: ['../vendor/angular-validation/dist/angular-validation.min.js']
-//         }
-//       ]
-//     });
-//   }
-// ]);
 
 (function() {
   'use strict';
 
-  angular.module('app').config(appRouter);
-
-  appRouter.$inject = ['$stateProvider', '$urlRouterProvider'];
+  angular.module('app').component('appSidebar', component());
 
   /* @ngInject */
-  function appRouter($stateProvider, $urlRouterProvider) {
-    var loginState = {
-      url: '/login',
-      templateUrl: 'pages/login.html'
-    }
-    var mainState = {
-      abstract: true,
-      templateUrl: 'pages/main/main.template.html'
-    }
-    var assetManagementState = {
-      // url: '^/assetManagement',
-      template: '<div ui-view></div>',
-      breadcrumb: {
-        label: "资产管理",
-        parent: "main"
-      }
-    }
-    var assetSearch = {
-      url: '^/assetSearch',
-      template: '<asset-search></asset-search>',
-      breadcrumb: {
-        label: "资产查询",
-        parent: "main.assetManagement"
-      }
-    }
-    var assetRecovery = {
-      url: '^/assetRecovery',
-      template: '<asset-recovery></asset-recovery>',
-      breadcrumb: {
-        label: "资产恢复",
-        parent: "main.assetManagement"
-      }
-    }
-    var assetsInventory = {
-      url: '^/assetsInventory',
-      template: '<asset-inventory inventory-type="&quot;getNotCompleteInventory&quot;"></asset-inventory>',
-      breadcrumb: {
-        label: "资产盘点",
-        parent: "main.assetManagement"
-      }
-    }
-    var cdManagement = {
-      url: '^/cdManagement',
-      template: '<cd-management></cd-management>',
-      breadcrumb: {
-        label: "类属管理",
-        parent: "main"
-      }
-    }
-    var errorState = {
-      url: '^/404',
-      templateUrl: 'pages/404.html',
-      breadcrumb: {
-        label: "404",
-        parent: "main"
-      }
-    }
-    $stateProvider.state('login', loginState);
-    $stateProvider.state('main', mainState);
-    $stateProvider.state('main.assetManagement', assetManagementState);
-    $stateProvider.state('main.assetManagement.assetSearch', assetSearch);
-    $stateProvider.state('main.assetManagement.assetRecovery', assetRecovery);
-    $stateProvider.state('main.assetManagement.assetsInventory', assetsInventory);
-    $stateProvider.state('main.cdManagement', cdManagement);
-    $stateProvider.state('main.404', errorState);
-    $urlRouterProvider.otherwise('assetSearch');
-
-  }
-})();
-
-(function() {
-  'use strict';
-
-  angular.module('app').config(formValidation);
-
-  formValidation.$inject = ['$validationProvider'];
-
-  /* @ngInject */
-  function formValidation($validationProvider) {
-    var expression = {
-      number: /^\d+$/,
-      required: function(value) {
-        return !!value;
-      }
+  function component() {
+    var component = {
+      templateUrl: 'layout/app-sidebar/sidebar.template.html',
+      controller: appSidebarCtrl
     };
-    var defaultMsg = {
-      number: {
-        success: '',
-        error: '必须是数字'
-      },
-      required: {
-        success: '',
-        error: '不能为空'
-      }
-    };
-    $validationProvider.setExpression(expression).setDefaultMsg(defaultMsg);
+
+    return component;
   }
-})();
 
-(function() {
-  'use strict';
+  appSidebarCtrl.$inject = ['$rootScope', '$state', '$scope'];
 
-angular
-.module('app')
-.directive('a', preventClickDirective)
-.directive('a', bootstrapCollapseDirective)
-.directive('a', navigationDirective)
-.directive('button', layoutToggleDirective)
-.directive('a', layoutToggleDirective)
-.directive('button', collapseMenuTogglerDirective)
-.directive('div', bootstrapCarouselDirective)
-.directive('toggle', bootstrapTooltipsPopoversDirective)
-.directive('tab', bootstrapTabsDirective)
-.directive('button', cardCollapseDirective)
-
-//Prevent click if href="#"
-function preventClickDirective() {
-  var directive = {
-    restrict: 'E',
-    link: link
-  }
-  return directive;
-
-  function link(scope, element, attrs) {
-    if (attrs.href === '#'){
-      element.on('click', function(event){
-        event.preventDefault();
-      });
-    }
-  }
-}
-
-//Bootstrap Collapse
-function bootstrapCollapseDirective() {
-  var directive = {
-    restrict: 'E',
-    link: link
-  }
-  return directive;
-
-  function link(scope, element, attrs) {
-    if (attrs.toggle=='collapse'){
-      element.attr('href','javascript;;').attr('data-target',attrs.href.replace('index.html',''));
-    }
-  }
-}
-
-/**
-* @desc Genesis main navigation - Siedebar menu
-* @example <li class="nav-item nav-dropdown"></li>
-*/
-function navigationDirective() {
-  var directive = {
-    restrict: 'E',
-    link: link
-  }
-  return directive;
-
-  function link(scope, element, attrs) {
-    if(element.hasClass('nav-dropdown-toggle') && angular.element('body').width() > 782) {
-      element.on('click', function(){
-        if(!angular.element('body').hasClass('compact-nav')) {
-          element.parent().toggleClass('open').find('.open').removeClass('open');
-        }
-      });
-    } else if (element.hasClass('nav-dropdown-toggle') && angular.element('body').width() < 783) {
-      element.on('click', function(){
-        element.parent().toggleClass('open').find('.open').removeClass('open');
-      });
-    }
-  }
-}
-
-//Dynamic resize .sidebar-nav
-sidebarNavDynamicResizeDirective.$inject = ['$window', '$timeout'];
-function sidebarNavDynamicResizeDirective($window, $timeout) {
-  var directive = {
-    restrict: 'E',
-    link: link
-  }
-  return directive;
-
-  function link(scope, element, attrs) {
-
-    if (element.hasClass('sidebar-nav') && angular.element('body').hasClass('fixed-nav')) {
-      var bodyHeight = angular.element(window).height();
-      scope.$watch(function(){
-        var headerHeight = angular.element('header').outerHeight();
-
-        if (angular.element('body').hasClass('sidebar-off-canvas')) {
-          element.css('height', bodyHeight);
-        } else {
-          element.css('height', bodyHeight - headerHeight);
-        }
-      })
-
-      angular.element($window).bind('resize', function(){
-        var bodyHeight = angular.element(window).height();
-        var headerHeight = angular.element('header').outerHeight();
-        var sidebarHeaderHeight = angular.element('.sidebar-header').outerHeight();
-        var sidebarFooterHeight = angular.element('.sidebar-footer').outerHeight();
-
-        if (angular.element('body').hasClass('sidebar-off-canvas')) {
-          element.css('height', bodyHeight - sidebarHeaderHeight - sidebarFooterHeight);
-        } else {
-          element.css('height', bodyHeight - headerHeight - sidebarHeaderHeight - sidebarFooterHeight);
-        }
-      });
-    }
-  }
-}
-
-//LayoutToggle
-layoutToggleDirective.$inject = ['$interval'];
-function layoutToggleDirective($interval) {
-  var directive = {
-    restrict: 'E',
-    link: link
-  }
-  return directive;
-
-  function link(scope, element, attrs) {
-    element.on('click', function(){
-
-      if (element.hasClass('sidebar-toggler')) {
-        angular.element('body').toggleClass('sidebar-hidden');
-      }
-
-      if (element.hasClass('aside-menu-toggler')) {
-        angular.element('body').toggleClass('aside-menu-hidden');
-      }
-    });
-  }
-}
-
-//Collapse menu toggler
-function collapseMenuTogglerDirective() {
-  var directive = {
-    restrict: 'E',
-    link: link
-  }
-  return directive;
-
-  function link(scope, element, attrs) {
-    element.on('click', function(){
-      if (element.hasClass('navbar-toggler') && !element.hasClass('layout-toggler')) {
-        angular.element('body').toggleClass('sidebar-mobile-show')
-      }
+  /* @ngInject */
+  function appSidebarCtrl($rootScope, $state, $scope) {
+    var self = this
+    self.currentState = $state.$current.name
+    $scope.$on('$stateChangeSuccess', function() {
+      self.currentState = $state.$current.name
     })
-  }
-}
-
-//Bootstrap Carousel
-function bootstrapCarouselDirective() {
-  var directive = {
-    restrict: 'E',
-    link: link
-  }
-  return directive;
-
-  function link(scope, element, attrs) {
-    if (attrs.ride=='carousel'){
-      element.find('a').each(function(){
-        $(this).attr('data-target',$(this).attr('href').replace('index.html','')).attr('href','javascript;;')
-      });
-    }
-  }
-}
-
-//Bootstrap Tooltips & Popovers
-function bootstrapTooltipsPopoversDirective() {
-  var directive = {
-    restrict: 'A',
-    link: link
-  }
-  return directive;
-
-  function link(scope, element, attrs) {
-    if (attrs.toggle=='tooltip'){
-      angular.element(element).tooltip();
-    }
-    if (attrs.toggle=='popover'){
-      angular.element(element).popover();
-    }
-  }
-}
-
-//Bootstrap Tabs
-function bootstrapTabsDirective() {
-  var directive = {
-    restrict: 'A',
-    link: link
-  }
-  return directive;
-
-  function link(scope, element, attrs) {
-    element.click(function(e) {
-      e.preventDefault();
-      angular.element(element).tab('show');
-    });
-  }
-}
-
-//Card Collapse
-function cardCollapseDirective() {
-  var directive = {
-    restrict: 'E',
-    link: link
-  }
-  return directive;
-
-  function link(scope, element, attrs) {
-    if (attrs.toggle=='collapse' && element.parent().hasClass('card-actions')){
-
-      if (element.parent().parent().parent().find('.card-block').hasClass('in')) {
-        element.find('i').addClass('r180');
-      }
-
-      var id = 'collapse-' + Math.floor((Math.random() * 1000000000) + 1);
-      element.attr('data-target','#'+id)
-      element.parent().parent().parent().find('.card-block').attr('id',id);
-
-      element.on('click', function(){
-        element.find('i').toggleClass('r180');
-      })
-    }
-  }
-}
-})();
-
-(function() {
-  'use strict';
-
-  angular.module('app').factory('httpService', factory);
-
-  factory.$inject = ['$http', '$q'];
-
-  /* @ngInject */
-  function factory($http, $q) {
-    var service = {
-      getRequest: getRequest,
-      JSONPostRequest: JSONPostRequest,
-      formPostRequest: formPostRequest,
-      getTableInfoRequest: getTableInfoRequest
-    };
-
-    return service;
-
-    // 重封装get请求
-    function getRequest(url, data) {
-      var deferred = $q.defer();
-      $http({
-        method: "GET",
-        url: url,
-        data: {
-          params: data
-        }
-      }).then(function(response) {
-        deferred.resolve(response);
-      }).catch(function(response) {
-        deferred.reject(response);
-      });
-      return deferred.promise;
-    }
-
-    // 重封装post请求
-    function JSONPostRequest(url, data) {
-      var deferred = $q.defer();
-      $http.post(url, JSON.stringify(data)).then(function(response) {
-        deferred.resolve(response);
-      }).catch(function(response) {
-        deferred.reject(response);
-      });
-      return deferred.promise;
-    }
-
-    // 重封装post请求，参数序列化
-    function formPostRequest(url, data) {
-      var deferred = $q.defer();
-      $http({
-        method: "POST",
-        url: url,
-        data: data,
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded; charser=UTF-8'
-        },
-        transformRequest: function(obj) {
-          var str = [];
-          for (var p in obj) {
-            str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
-          }
-          return str.join("&");
-        }
-      }).then(function(response) {
-        deferred.resolve(response);
-      }).catch(function(response) {
-        deferred.reject(response);
-      });
-      return deferred.promise;
-    }
-
-    // 重封装get请求，查询列表信息
-    function getTableInfoRequest(url, searchType, searchKeyWord, assetCategory, departmentResponsibility, pageNum, pageSize) {
-      var deferred = $q.defer();
-      var assetId = '';
-      var assetName = '';
-      var brandSpecification = '';
-      var personInCharge = '';
-      switch (searchType) {
-        case '':
-          break;
-        case 'assetId':
-          assetId = (searchKeyWord !== '')
-            ? searchKeyWord
-            : '';
-          break;
-        case 'assetName':
-          assetName = (searchKeyWord !== '')
-            ? searchKeyWord
-            : '';
-          break;
-        case 'personInCharge':
-          personInCharge = (searchKeyWord !== '')
-            ? searchKeyWord
-            : '';
-          break;
-      };
-      $http.get(url, {
-        params: {
-          'assetId': assetId,
-          'assetName': assetName,
-          'brandSpecification': brandSpecification,
-          'personInCharge': personInCharge,
-          'assetCategory': assetCategory,
-          'departmentResponsibility': departmentResponsibility,
-          'pageNum': pageNum,
-          'pageSize': pageSize
-        }
-      }).then(function(response) {
-        deferred.resolve(response);
-      }).catch(function(response) {
-        deferred.reject(response);
-      });
-      return deferred.promise;
-    }
-
-  }
-})();
-
-// angular.module('app').factory('httpService', [
-//   '$http',
-//   '$q',
-//   function($http, $q) {
-//     return {
-//       // 重封装get请求
-//       getRequest: function(url, data) {
-//         var deferred = $q.defer();
-//         $http({
-//           method: "GET",
-//           url: url,
-//           data: {
-//             params: data
-//           }
-//         }).then(function(response) {
-//           deferred.resolve(response);
-//         }).catch(function(response) {
-//           deferred.reject(response);
-//         });
-//         return deferred.promise;
-//       },
-//
-//       // 重封装post请求，参数序列化
-//       postRequest: function(url, data) {
-//         var deferred = $q.defer();
-//         $http({
-//           method: "POST",
-//           url: url,
-//           data: data,
-//           headers: {
-//             'Content-Type': 'application/x-www-form-urlencoded; charser=UTF-8'
-//           },
-//           transformRequest: function(obj) {
-//             var str = [];
-//             for (var p in obj) {
-//               str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
-//             }
-//             return str.join("&");
-//           }
-//         }).then(function(response) {
-//           deferred.resolve(response);
-//         }).catch(function(response) {
-//           deferred.reject(response);
-//         });
-//         return deferred.promise;
-//       },
-//
-//       // 重封装get请求，查询列表信息
-//       getTableInfoRequest: function(url, searchType, searchKeyWord, assetCategory, departmentResponsibility, pageNum, pageSize) {
-//         var deferred = $q.defer();
-//         var assetId = '';
-//         var assetName = '';
-//         var brandSpecification = '';
-//         var personInCharge = '';
-//         switch (searchType) {
-//           case '':
-//             break;
-//           case 'assetId':
-//             assetId = (searchKeyWord !== '')
-//               ? searchKeyWord
-//               : '';
-//             break;
-//           case 'assetName':
-//             assetName = (searchKeyWord !== '')
-//               ? searchKeyWord
-//               : '';
-//             break;
-//           case 'personInCharge':
-//             personInCharge = (searchKeyWord !== '')
-//               ? searchKeyWord
-//               : '';
-//             break;
-//         };
-//         $http.get(url, {
-//           params: {
-//             'assetId': assetId,
-//             'assetName': assetName,
-//             'brandSpecification': brandSpecification,
-//             'personInCharge': personInCharge,
-//             'assetCategory': assetCategory,
-//             'departmentResponsibility': departmentResponsibility,
-//             'pageNum': pageNum,
-//             'pageSize': pageSize
-//           }
-//         }).then(function(response) {
-//           deferred.resolve(response);
-//         }).catch(function(response) {
-//           deferred.reject(response);
-//         });
-//         return deferred.promise;
-//       }
-//     };
-//   }
-// ]);
-
-
-(function() {
-  'use strict';
-
-  angular.module('app').factory('interfacesService', factory);
-
-  factory.$inject = [];
-
-  /* @ngInject */
-  function factory() {
-    var main = "http://192.168.1.56:8080/";
-    // var backup = "http://192.168.1.107:28088/";
-    var backup = "http://192.168.1.8:18080/";
-
-    var api = backup;
-    var interfaces = {
-      'searchUrl': api + "asset/getAssetList.do",
-      'searchByIdUrl': api + "asset/getAssetById.do",
-      'addUrl': api + "asset/addAssetItem.do",
-      'updateUrl': api + "asset/updateAssetInfo.do",
-      'deleteUrl': api + "asset/deleteItem.do",
-      'printQRcode': api + "asset/printQRcode.do",
-      'importUrl': api + "asset/importAssetRecord.do",
-      'exportUrl': api + "asset/exportStorageRecord.do",
-      'getAssetUrl': api + "asset/getAssetSelect.do",
-
-      'clearInventoryAmount': api + "asset/clearInventoryAmount.do",
-      'assetsInventory': api + "asset/assetsInventory.do",
-      'getCompleteInventory': api + "asset/getCompleteInventory.do",
-      'getNotCompleteInventory': api + "asset/getNotCompleteInventory.do",
-
-      'getAssetRecycle': api + "asset/getAssetRecycle.do",
-      'deleteAssetRecycleItem': api + "asset/deleteAssetRecycleItem.do",
-      'deleteAssetRecycleMultiItem': api + "asset/deleteAssetRecycleMultiItem.do",
-      'notExistItemInAssetTable': api + "asset/notExistItemInAssetTable.do",
-      'notExistMultiItemInAssetTable': api + "asset/notExistMultiItemInAssetTable.do",
-      'recycleAssetItem': api + "asset/recycleAssetItem.do",
-      'recycleAssetMultiItem': api + "asset/recycleAssetMultiItem.do",
-
-      'getDepartment': api + "manage/department/getDepartment.do",
-      'addDepartment': api + "manage/department/addDepartment.do",
-      'updateDepartment': api + "manage/department/updateDepartment.do",
-      'deleteDepartment': api + "manage/department/deleteDepartment.do",
-      'getCategory': api + "manage/assetCategory/getCategory.do",
-      'addCategory': api + "manage/assetCategory/addCategory.do",
-      'updateCategory': api + "manage/assetCategory/updateCategory.do",
-      'deleteCategory': api + "manage/assetCategory/deleteCategory.do"
-    };
-
-    return interfaces;
   }
 })();
 
@@ -1246,11 +600,21 @@ function cardCollapseDirective() {
       departmentResponsibility: ''
     };
     self.modalInfo = {
-      showModal: false
+      showModal: false,
+      showClearModal: false
     };
-    self.selectList = [{name: '未盘点', value: 'getNotCompleteInventory'}, {name: '已盘点', value: 'getCompleteInventory'}]
+    self.selectList = [
+      {
+        name: '未盘点',
+        value: 'getNotCompleteInventory'
+      }, {
+        name: '已盘点',
+        value: 'getCompleteInventory'
+      }
+    ]
 
     // function
+    self.clean = clean
     self.searchPageNumberChange = searchPageNumberChange
     self.getInventory = getInventory
     self.clearInventoryAmount = clearInventoryAmount
@@ -1258,6 +622,11 @@ function cardCollapseDirective() {
 
     self.getInventory('', '', '', '', 1, 'getNotCompleteInventory')
 
+    // 清空并关闭弹出窗
+    function clean() {
+      self.modalInfo.showModal = false;
+      self.assetId = '';
+    }
     // 换页
     function searchPageNumberChange(newValue) {
       if (newValue < 1)
@@ -1294,12 +663,12 @@ function cardCollapseDirective() {
       httpService.formPostRequest(interfacesService.clearInventoryAmount).then(function(response) {
         if (response.data.status == 0) {
           SweetAlert.swal("清空资产盘点成功", response.data.msg, "success");
-          self.modalInfo.showModal = false;
+          self.modalInfo.showClearModal = false;
           self.getInventory('', '', '', '', 1, 'getNotCompleteInventory');
           self.searchInfo.inventoryType = 'getNotCompleteInventory';
         } else {
           SweetAlert.swal({title: "清空资产盘点失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-          self.modalInfo.showModal = false;
+          self.modalInfo.showClearModal = false;
         }
       }).catch(function(response) {
         SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
@@ -1313,10 +682,12 @@ function cardCollapseDirective() {
       httpService.formPostRequest(interfacesService.assetsInventory, data).then(function(response) {
         if (response.data.status == 0) {
           SweetAlert.swal("盘点资产成功", response.data.msg, "success");
+          self.clean();
           self.getInventory('', '', '', '', 1, 'getCompleteInventory');
           self.searchInfo.inventoryType = 'getCompleteInventory';
         } else {
           SweetAlert.swal({title: "盘点资产失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+          self.clean();
         }
       }).catch(function(response) {
         SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
@@ -1589,168 +960,6 @@ function cardCollapseDirective() {
         SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
       });
     }
-  }
-})();
-
-(function() {
-  'use strict';
-
-  angular.module('app').component('cdManagement', component());
-
-  /* @ngInject */
-  function component() {
-    var component = {
-      templateUrl: 'pages/cd-management/cd-management.template.html',
-      controller: cdManagementCtrl
-    };
-
-    return component;
-  }
-
-  cdManagementCtrl.$inject = ['interfacesService', 'httpService', 'SweetAlert'];
-
-  /* @ngInject */
-  function cdManagementCtrl(interfacesService, httpService, SweetAlert) {
-    var self = this
-    self.departmentLoading = false;
-    self.categoryLoading = false;
-    self.departmentArray = [];
-    self.categoryArray = [];
-    self.deptShowPencilLable = 999;
-    self.catShowPencilLable = 999;
-    self.addDepartmentInput = '';
-    self.addCategoryInput = '';
-    self.selectedItem = {};
-    self.modalInfo = {
-      showDepartmentModal: false,
-      showCategoryModal: false
-    };
-
-    // function
-    self.showModal = showModal
-    self.getDatas = getDatas
-    self.deleteDatas = deleteDatas
-    self.addDepartment = addDepartment
-    self.updateDepartment = updateDepartment
-    self.addCategory = addCategory
-    self.updateCategory = updateCategory
-
-    self.getDatas('department', 'Department')
-    self.getDatas('category', 'Category')
-
-    // 显示模态框
-    function showModal(item, param) {
-      self.modalInfo['show' + param + 'Modal'] = true;
-      self.selectedItem = item;
-    };
-    // 获取
-    function getDatas(param, Param) {
-      self[param + 'Loading'] = true;
-      httpService.getRequest(interfacesService['get' + Param]).then(function(response) {
-        if (response.data.status == 0) {
-          self[param + 'Array'] = response.data.data;
-        } else {
-          self[param + 'Array'] = [];
-        }
-        self[param + 'Loading'] = false;
-      }).catch(function(response) {
-        self[param + 'Loading'] = false;
-        SweetAlert.swal({title: "服务器出错了", text: response.statusText, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-      });
-    };
-    // 删除
-    function deleteDatas(param, Param) {
-      var data = {
-        'id': self.selectedItem['id']
-      };
-      httpService.formPostRequest(interfacesService['delete' + Param], data).then(function(response) {
-        if (response.data.status == 0) {
-          SweetAlert.swal("删除成功", response.data.msg, "success");
-          self.modalInfo['show' + Param + 'Modal'] = false;
-          self.getDatas(param, Param);
-        } else {
-          SweetAlert.swal({title: "删除失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-          self.modalInfo['show' + Param + 'Modal'] = false;
-        }
-      }).catch(function(response) {
-        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-      });
-    };
-    // 增加
-    function addDepartment() {
-      var data = {
-        'departmentName': self.addDepartmentInput
-      };
-      httpService.formPostRequest(interfacesService.addDepartment, data).then(function(response) {
-        if (response.data.status == 0) {
-          SweetAlert.swal("增加成功", response.data.msg, "success");
-          self.modalInfo.showDepartmentModal = false;
-          self.getDatas('department', 'Department');
-        } else {
-          SweetAlert.swal({title: "增加失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-          self.modalInfo.showDepartmentModal = false;
-        }
-      }).catch(function(response) {
-        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-      });
-    };
-    // 编辑
-    function updateDepartment() {
-      var data = {
-        'id': self.selectedItem['id'],
-        'departmentName': self.selectedItem['departmentName']
-      };
-      httpService.formPostRequest(interfacesService.updateDepartment, data).then(function(response) {
-        if (response.data.status == 0) {
-          SweetAlert.swal("编辑成功", response.data.msg, "success");
-          self.modalInfo.showDepartmentModal = false;
-          self.getDatas('department', 'Department');
-        } else {
-          SweetAlert.swal({title: "编辑失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-          self.modalInfo.showDepartmentModal = false;
-        }
-      }).catch(function(response) {
-        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-      });
-    };
-    // 增加
-    function addCategory() {
-      var data = {
-        'categoryName': self.addCategoryInput
-      };
-      httpService.formPostRequest(interfacesService.addCategory, data).then(function(response) {
-        if (response.data.status == 0) {
-          SweetAlert.swal("增加成功", response.data.msg, "success");
-          self.modalInfo.showCategoryModal = false;
-          self.getDatas('category', 'Category');
-        } else {
-          SweetAlert.swal({title: "增加失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-          self.modalInfo.showCategoryModal = false;
-        }
-      }).catch(function(response) {
-        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-      });
-    };
-    // 编辑
-    function updateCategory() {
-      var data = {
-        'id': self.selectedItem['id'],
-        'categoryName': self.selectedItem['categoryName']
-      };
-      httpService.formPostRequest(interfacesService.updateCategory, data).then(function(response) {
-        if (response.data.status == 0) {
-          SweetAlert.swal("编辑成功", response.data.msg, "success");
-          self.modalInfo.showCategoryModal = false;
-          self.getDatas('category', 'Category');
-        } else {
-          SweetAlert.swal({title: "编辑失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-          self.modalInfo.showCategoryModal = false;
-        }
-      }).catch(function(response) {
-        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-      });
-    };
-
   }
 })();
 
@@ -2092,9 +1301,810 @@ function cardCollapseDirective() {
   }
 })();
 
+(function() {
+  'use strict';
+
+  angular.module('app').component('cdManagement', component());
+
+  /* @ngInject */
+  function component() {
+    var component = {
+      templateUrl: 'pages/cd-management/cd-management.template.html',
+      controller: cdManagementCtrl
+    };
+
+    return component;
+  }
+
+  cdManagementCtrl.$inject = ['interfacesService', 'httpService', 'SweetAlert'];
+
+  /* @ngInject */
+  function cdManagementCtrl(interfacesService, httpService, SweetAlert) {
+    var self = this
+    self.departmentLoading = false;
+    self.categoryLoading = false;
+    self.departmentArray = [];
+    self.categoryArray = [];
+    self.deptShowPencilLable = 999;
+    self.catShowPencilLable = 999;
+    self.addDepartmentInput = '';
+    self.addCategoryInput = '';
+    self.selectedItem = {};
+    self.modalInfo = {
+      showDepartmentModal: false,
+      showCategoryModal: false
+    };
+
+    // function
+    self.showModal = showModal
+    self.getDatas = getDatas
+    self.deleteDatas = deleteDatas
+    self.addDepartment = addDepartment
+    self.updateDepartment = updateDepartment
+    self.addCategory = addCategory
+    self.updateCategory = updateCategory
+
+    self.getDatas('department', 'Department')
+    self.getDatas('category', 'Category')
+
+    // 显示模态框
+    function showModal(item, param) {
+      self.modalInfo['show' + param + 'Modal'] = true;
+      self.selectedItem = item;
+    };
+    // 获取
+    function getDatas(param, Param) {
+      self[param + 'Loading'] = true;
+      httpService.getRequest(interfacesService['get' + Param]).then(function(response) {
+        if (response.data.status == 0) {
+          self[param + 'Array'] = response.data.data;
+        } else {
+          self[param + 'Array'] = [];
+        }
+        self[param + 'Loading'] = false;
+      }).catch(function(response) {
+        self[param + 'Loading'] = false;
+        SweetAlert.swal({title: "服务器出错了", text: response.statusText, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+      });
+    };
+    // 删除
+    function deleteDatas(param, Param) {
+      var data = {
+        'id': self.selectedItem['id']
+      };
+      httpService.formPostRequest(interfacesService['delete' + Param], data).then(function(response) {
+        if (response.data.status == 0) {
+          SweetAlert.swal("删除成功", response.data.msg, "success");
+          self.modalInfo['show' + Param + 'Modal'] = false;
+          self.getDatas(param, Param);
+        } else {
+          SweetAlert.swal({title: "删除失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+          self.modalInfo['show' + Param + 'Modal'] = false;
+        }
+      }).catch(function(response) {
+        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+      });
+    };
+    // 增加
+    function addDepartment() {
+      var data = {
+        'departmentName': self.addDepartmentInput
+      };
+      httpService.formPostRequest(interfacesService.addDepartment, data).then(function(response) {
+        if (response.data.status == 0) {
+          SweetAlert.swal("增加成功", response.data.msg, "success");
+          self.modalInfo.showDepartmentModal = false;
+          self.getDatas('department', 'Department');
+        } else {
+          SweetAlert.swal({title: "增加失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+          self.modalInfo.showDepartmentModal = false;
+        }
+      }).catch(function(response) {
+        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+      });
+    };
+    // 编辑
+    function updateDepartment() {
+      var data = {
+        'id': self.selectedItem['id'],
+        'departmentName': self.selectedItem['departmentName']
+      };
+      httpService.formPostRequest(interfacesService.updateDepartment, data).then(function(response) {
+        if (response.data.status == 0) {
+          SweetAlert.swal("编辑成功", response.data.msg, "success");
+          self.modalInfo.showDepartmentModal = false;
+          self.getDatas('department', 'Department');
+        } else {
+          SweetAlert.swal({title: "编辑失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+          self.modalInfo.showDepartmentModal = false;
+        }
+      }).catch(function(response) {
+        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+      });
+    };
+    // 增加
+    function addCategory() {
+      var data = {
+        'categoryName': self.addCategoryInput
+      };
+      httpService.formPostRequest(interfacesService.addCategory, data).then(function(response) {
+        if (response.data.status == 0) {
+          SweetAlert.swal("增加成功", response.data.msg, "success");
+          self.modalInfo.showCategoryModal = false;
+          self.getDatas('category', 'Category');
+        } else {
+          SweetAlert.swal({title: "增加失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+          self.modalInfo.showCategoryModal = false;
+        }
+      }).catch(function(response) {
+        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+      });
+    };
+    // 编辑
+    function updateCategory() {
+      var data = {
+        'id': self.selectedItem['id'],
+        'categoryName': self.selectedItem['categoryName']
+      };
+      httpService.formPostRequest(interfacesService.updateCategory, data).then(function(response) {
+        if (response.data.status == 0) {
+          SweetAlert.swal("编辑成功", response.data.msg, "success");
+          self.modalInfo.showCategoryModal = false;
+          self.getDatas('category', 'Category');
+        } else {
+          SweetAlert.swal({title: "编辑失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+          self.modalInfo.showCategoryModal = false;
+        }
+      }).catch(function(response) {
+        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+      });
+    };
+
+  }
+})();
+
+(function() {
+  'use strict';
+
+angular
+.module('app')
+.directive('a', preventClickDirective)
+.directive('a', bootstrapCollapseDirective)
+.directive('a', navigationDirective)
+.directive('button', layoutToggleDirective)
+.directive('a', layoutToggleDirective)
+.directive('button', collapseMenuTogglerDirective)
+.directive('div', bootstrapCarouselDirective)
+.directive('toggle', bootstrapTooltipsPopoversDirective)
+.directive('tab', bootstrapTabsDirective)
+.directive('button', cardCollapseDirective)
+
+//Prevent click if href="#"
+function preventClickDirective() {
+  var directive = {
+    restrict: 'E',
+    link: link
+  }
+  return directive;
+
+  function link(scope, element, attrs) {
+    if (attrs.href === '#'){
+      element.on('click', function(event){
+        event.preventDefault();
+      });
+    }
+  }
+}
+
+//Bootstrap Collapse
+function bootstrapCollapseDirective() {
+  var directive = {
+    restrict: 'E',
+    link: link
+  }
+  return directive;
+
+  function link(scope, element, attrs) {
+    if (attrs.toggle=='collapse'){
+      element.attr('href','javascript;;').attr('data-target',attrs.href.replace('index.html',''));
+    }
+  }
+}
+
+/**
+* @desc Genesis main navigation - Siedebar menu
+* @example <li class="nav-item nav-dropdown"></li>
+*/
+function navigationDirective() {
+  var directive = {
+    restrict: 'E',
+    link: link
+  }
+  return directive;
+
+  function link(scope, element, attrs) {
+    if(element.hasClass('nav-dropdown-toggle') && angular.element('body').width() > 782) {
+      element.on('click', function(){
+        if(!angular.element('body').hasClass('compact-nav')) {
+          element.parent().toggleClass('open').find('.open').removeClass('open');
+        }
+      });
+    } else if (element.hasClass('nav-dropdown-toggle') && angular.element('body').width() < 783) {
+      element.on('click', function(){
+        element.parent().toggleClass('open').find('.open').removeClass('open');
+      });
+    }
+  }
+}
+
+//Dynamic resize .sidebar-nav
+sidebarNavDynamicResizeDirective.$inject = ['$window', '$timeout'];
+function sidebarNavDynamicResizeDirective($window, $timeout) {
+  var directive = {
+    restrict: 'E',
+    link: link
+  }
+  return directive;
+
+  function link(scope, element, attrs) {
+
+    if (element.hasClass('sidebar-nav') && angular.element('body').hasClass('fixed-nav')) {
+      var bodyHeight = angular.element(window).height();
+      scope.$watch(function(){
+        var headerHeight = angular.element('header').outerHeight();
+
+        if (angular.element('body').hasClass('sidebar-off-canvas')) {
+          element.css('height', bodyHeight);
+        } else {
+          element.css('height', bodyHeight - headerHeight);
+        }
+      })
+
+      angular.element($window).bind('resize', function(){
+        var bodyHeight = angular.element(window).height();
+        var headerHeight = angular.element('header').outerHeight();
+        var sidebarHeaderHeight = angular.element('.sidebar-header').outerHeight();
+        var sidebarFooterHeight = angular.element('.sidebar-footer').outerHeight();
+
+        if (angular.element('body').hasClass('sidebar-off-canvas')) {
+          element.css('height', bodyHeight - sidebarHeaderHeight - sidebarFooterHeight);
+        } else {
+          element.css('height', bodyHeight - headerHeight - sidebarHeaderHeight - sidebarFooterHeight);
+        }
+      });
+    }
+  }
+}
+
+//LayoutToggle
+layoutToggleDirective.$inject = ['$interval'];
+function layoutToggleDirective($interval) {
+  var directive = {
+    restrict: 'E',
+    link: link
+  }
+  return directive;
+
+  function link(scope, element, attrs) {
+    element.on('click', function(){
+
+      if (element.hasClass('sidebar-toggler')) {
+        angular.element('body').toggleClass('sidebar-hidden');
+      }
+
+      if (element.hasClass('aside-menu-toggler')) {
+        angular.element('body').toggleClass('aside-menu-hidden');
+      }
+    });
+  }
+}
+
+//Collapse menu toggler
+function collapseMenuTogglerDirective() {
+  var directive = {
+    restrict: 'E',
+    link: link
+  }
+  return directive;
+
+  function link(scope, element, attrs) {
+    element.on('click', function(){
+      if (element.hasClass('navbar-toggler') && !element.hasClass('layout-toggler')) {
+        angular.element('body').toggleClass('sidebar-mobile-show')
+      }
+    })
+  }
+}
+
+//Bootstrap Carousel
+function bootstrapCarouselDirective() {
+  var directive = {
+    restrict: 'E',
+    link: link
+  }
+  return directive;
+
+  function link(scope, element, attrs) {
+    if (attrs.ride=='carousel'){
+      element.find('a').each(function(){
+        $(this).attr('data-target',$(this).attr('href').replace('index.html','')).attr('href','javascript;;')
+      });
+    }
+  }
+}
+
+//Bootstrap Tooltips & Popovers
+function bootstrapTooltipsPopoversDirective() {
+  var directive = {
+    restrict: 'A',
+    link: link
+  }
+  return directive;
+
+  function link(scope, element, attrs) {
+    if (attrs.toggle=='tooltip'){
+      angular.element(element).tooltip();
+    }
+    if (attrs.toggle=='popover'){
+      angular.element(element).popover();
+    }
+  }
+}
+
+//Bootstrap Tabs
+function bootstrapTabsDirective() {
+  var directive = {
+    restrict: 'A',
+    link: link
+  }
+  return directive;
+
+  function link(scope, element, attrs) {
+    element.click(function(e) {
+      e.preventDefault();
+      angular.element(element).tab('show');
+    });
+  }
+}
+
+//Card Collapse
+function cardCollapseDirective() {
+  var directive = {
+    restrict: 'E',
+    link: link
+  }
+  return directive;
+
+  function link(scope, element, attrs) {
+    if (attrs.toggle=='collapse' && element.parent().hasClass('card-actions')){
+
+      if (element.parent().parent().parent().find('.card-block').hasClass('in')) {
+        element.find('i').addClass('r180');
+      }
+
+      var id = 'collapse-' + Math.floor((Math.random() * 1000000000) + 1);
+      element.attr('data-target','#'+id)
+      element.parent().parent().parent().find('.card-block').attr('id',id);
+
+      element.on('click', function(){
+        element.find('i').toggleClass('r180');
+      })
+    }
+  }
+}
+})();
+
+(function() {
+  'use strict';
+
+  angular.module('app').config(appLazyLoad);
+
+  appLazyLoad.$inject = ['$ocLazyLoadProvider'];
+
+  /* @ngInject */
+  function appLazyLoad($ocLazyLoadProvider) {
+    var data = {
+      debug: true,
+      events: false,
+      modules: [
+        {
+          name: 'validation',
+          files: ['../vendor/angular-validation/dist/angular-validation.min.js']
+        }
+      ]
+    }
+    $ocLazyLoadProvider.config(data);
+  }
+})();
+
 // 'use strict';
-// angular.module('app').controller('appCtrl', [
-//   '$http',
-//   '$scope',
-//   function($http, $scope) {}
+//
+// angular.module('app').config([
+//   '$ocLazyLoadProvider',
+//   function($ocLazyLoadProvider) {
+//     $ocLazyLoadProvider.config({
+//       debug: true,
+//       events: false,
+//       modules: [
+//         {
+//           name: 'validation',
+//           files: ['../vendor/angular-validation/dist/angular-validation.min.js']
+//         }
+//       ]
+//     });
+//   }
 // ]);
+
+(function() {
+  'use strict';
+
+  angular.module('app').config(appRouter);
+
+  appRouter.$inject = ['$stateProvider', '$urlRouterProvider'];
+
+  /* @ngInject */
+  function appRouter($stateProvider, $urlRouterProvider) {
+    var loginState = {
+      url: '/login',
+      templateUrl: 'pages/login.html'
+    }
+    var mainState = {
+      abstract: true,
+      templateUrl: 'pages/main/main.template.html'
+    }
+    var assetManagementState = {
+      // url: '^/assetManagement',
+      template: '<div ui-view></div>',
+      breadcrumb: {
+        label: "资产管理",
+        parent: "main"
+      }
+    }
+    var assetSearch = {
+      url: '^/assetSearch',
+      template: '<asset-search></asset-search>',
+      breadcrumb: {
+        label: "资产查询",
+        parent: "main.assetManagement"
+      }
+    }
+    var assetRecovery = {
+      url: '^/assetRecovery',
+      template: '<asset-recovery></asset-recovery>',
+      breadcrumb: {
+        label: "资产恢复",
+        parent: "main.assetManagement"
+      }
+    }
+    var assetsInventory = {
+      url: '^/assetsInventory',
+      template: '<asset-inventory inventory-type="&quot;getNotCompleteInventory&quot;"></asset-inventory>',
+      breadcrumb: {
+        label: "资产盘点",
+        parent: "main.assetManagement"
+      }
+    }
+    var cdManagement = {
+      url: '^/cdManagement',
+      template: '<cd-management></cd-management>',
+      breadcrumb: {
+        label: "类属管理",
+        parent: "main"
+      }
+    }
+    var errorState = {
+      url: '^/404',
+      templateUrl: 'pages/404.html',
+      breadcrumb: {
+        label: "404",
+        parent: "main"
+      }
+    }
+    $stateProvider.state('login', loginState);
+    $stateProvider.state('main', mainState);
+    $stateProvider.state('main.assetManagement', assetManagementState);
+    $stateProvider.state('main.assetManagement.assetSearch', assetSearch);
+    $stateProvider.state('main.assetManagement.assetRecovery', assetRecovery);
+    $stateProvider.state('main.assetManagement.assetsInventory', assetsInventory);
+    $stateProvider.state('main.cdManagement', cdManagement);
+    $stateProvider.state('main.404', errorState);
+    $urlRouterProvider.otherwise('assetSearch');
+
+  }
+})();
+
+(function() {
+  'use strict';
+
+  angular.module('app').config(formValidation);
+
+  formValidation.$inject = ['$validationProvider'];
+
+  /* @ngInject */
+  function formValidation($validationProvider) {
+    var expression = {
+      number: /^\d+$/,
+      required: function(value) {
+        return !!value;
+      }
+    };
+    var defaultMsg = {
+      number: {
+        success: '',
+        error: '必须是数字'
+      },
+      required: {
+        success: '',
+        error: '不能为空'
+      }
+    };
+    $validationProvider.setExpression(expression).setDefaultMsg(defaultMsg);
+  }
+})();
+
+(function() {
+  'use strict';
+
+  angular.module('app').factory('httpService', factory);
+
+  factory.$inject = ['$http', '$q'];
+
+  /* @ngInject */
+  function factory($http, $q) {
+    var service = {
+      getRequest: getRequest,
+      JSONPostRequest: JSONPostRequest,
+      formPostRequest: formPostRequest,
+      getTableInfoRequest: getTableInfoRequest
+    };
+
+    return service;
+
+    // 重封装get请求
+    function getRequest(url, data) {
+      var deferred = $q.defer();
+      $http({
+        method: "GET",
+        url: url,
+        data: {
+          params: data
+        }
+      }).then(function(response) {
+        deferred.resolve(response);
+      }).catch(function(response) {
+        deferred.reject(response);
+      });
+      return deferred.promise;
+    }
+
+    // 重封装post请求
+    function JSONPostRequest(url, data) {
+      var deferred = $q.defer();
+      $http.post(url, JSON.stringify(data)).then(function(response) {
+        deferred.resolve(response);
+      }).catch(function(response) {
+        deferred.reject(response);
+      });
+      return deferred.promise;
+    }
+
+    // 重封装post请求，参数序列化
+    function formPostRequest(url, data) {
+      var deferred = $q.defer();
+      $http({
+        method: "POST",
+        url: url,
+        data: data,
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded; charser=UTF-8'
+        },
+        transformRequest: function(obj) {
+          var str = [];
+          for (var p in obj) {
+            str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+          }
+          return str.join("&");
+        }
+      }).then(function(response) {
+        deferred.resolve(response);
+      }).catch(function(response) {
+        deferred.reject(response);
+      });
+      return deferred.promise;
+    }
+
+    // 重封装get请求，查询列表信息
+    function getTableInfoRequest(url, searchType, searchKeyWord, assetCategory, departmentResponsibility, pageNum, pageSize) {
+      var deferred = $q.defer();
+      var assetId = '';
+      var assetName = '';
+      var brandSpecification = '';
+      var personInCharge = '';
+      switch (searchType) {
+        case '':
+          break;
+        case 'assetId':
+          assetId = (searchKeyWord !== '')
+            ? searchKeyWord
+            : '';
+          break;
+        case 'assetName':
+          assetName = (searchKeyWord !== '')
+            ? searchKeyWord
+            : '';
+          break;
+        case 'personInCharge':
+          personInCharge = (searchKeyWord !== '')
+            ? searchKeyWord
+            : '';
+          break;
+      };
+      $http.get(url, {
+        params: {
+          'assetId': assetId,
+          'assetName': assetName,
+          'brandSpecification': brandSpecification,
+          'personInCharge': personInCharge,
+          'assetCategory': assetCategory,
+          'departmentResponsibility': departmentResponsibility,
+          'pageNum': pageNum,
+          'pageSize': pageSize
+        }
+      }).then(function(response) {
+        deferred.resolve(response);
+      }).catch(function(response) {
+        deferred.reject(response);
+      });
+      return deferred.promise;
+    }
+
+  }
+})();
+
+// angular.module('app').factory('httpService', [
+//   '$http',
+//   '$q',
+//   function($http, $q) {
+//     return {
+//       // 重封装get请求
+//       getRequest: function(url, data) {
+//         var deferred = $q.defer();
+//         $http({
+//           method: "GET",
+//           url: url,
+//           data: {
+//             params: data
+//           }
+//         }).then(function(response) {
+//           deferred.resolve(response);
+//         }).catch(function(response) {
+//           deferred.reject(response);
+//         });
+//         return deferred.promise;
+//       },
+//
+//       // 重封装post请求，参数序列化
+//       postRequest: function(url, data) {
+//         var deferred = $q.defer();
+//         $http({
+//           method: "POST",
+//           url: url,
+//           data: data,
+//           headers: {
+//             'Content-Type': 'application/x-www-form-urlencoded; charser=UTF-8'
+//           },
+//           transformRequest: function(obj) {
+//             var str = [];
+//             for (var p in obj) {
+//               str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+//             }
+//             return str.join("&");
+//           }
+//         }).then(function(response) {
+//           deferred.resolve(response);
+//         }).catch(function(response) {
+//           deferred.reject(response);
+//         });
+//         return deferred.promise;
+//       },
+//
+//       // 重封装get请求，查询列表信息
+//       getTableInfoRequest: function(url, searchType, searchKeyWord, assetCategory, departmentResponsibility, pageNum, pageSize) {
+//         var deferred = $q.defer();
+//         var assetId = '';
+//         var assetName = '';
+//         var brandSpecification = '';
+//         var personInCharge = '';
+//         switch (searchType) {
+//           case '':
+//             break;
+//           case 'assetId':
+//             assetId = (searchKeyWord !== '')
+//               ? searchKeyWord
+//               : '';
+//             break;
+//           case 'assetName':
+//             assetName = (searchKeyWord !== '')
+//               ? searchKeyWord
+//               : '';
+//             break;
+//           case 'personInCharge':
+//             personInCharge = (searchKeyWord !== '')
+//               ? searchKeyWord
+//               : '';
+//             break;
+//         };
+//         $http.get(url, {
+//           params: {
+//             'assetId': assetId,
+//             'assetName': assetName,
+//             'brandSpecification': brandSpecification,
+//             'personInCharge': personInCharge,
+//             'assetCategory': assetCategory,
+//             'departmentResponsibility': departmentResponsibility,
+//             'pageNum': pageNum,
+//             'pageSize': pageSize
+//           }
+//         }).then(function(response) {
+//           deferred.resolve(response);
+//         }).catch(function(response) {
+//           deferred.reject(response);
+//         });
+//         return deferred.promise;
+//       }
+//     };
+//   }
+// ]);
+
+
+(function() {
+  'use strict';
+
+  angular.module('app').factory('interfacesService', factory);
+
+  factory.$inject = [];
+
+  /* @ngInject */
+  function factory() {
+    var main = "http://192.168.1.56:8080/";
+    // var backup = "http://192.168.1.107:28088/";
+    var backup = "http://192.168.1.8:18080/";
+
+    var api = backup;
+    var interfaces = {
+      'searchUrl': api + "asset/getAssetList.do",
+      'searchByIdUrl': api + "asset/getAssetById.do",
+      'addUrl': api + "asset/addAssetItem.do",
+      'updateUrl': api + "asset/updateAssetInfo.do",
+      'deleteUrl': api + "asset/deleteItem.do",
+      'printQRcode': api + "asset/printQRcode.do",
+      'importUrl': api + "asset/importAssetRecord.do",
+      'exportUrl': api + "asset/exportStorageRecord.do",
+      'getAssetUrl': api + "asset/getAssetSelect.do",
+
+      'clearInventoryAmount': api + "asset/clearInventoryAmount.do",
+      'assetsInventory': api + "asset/assetsInventory.do",
+      'getCompleteInventory': api + "asset/getCompleteInventory.do",
+      'getNotCompleteInventory': api + "asset/getNotCompleteInventory.do",
+
+      'getAssetRecycle': api + "asset/getAssetRecycle.do",
+      'deleteAssetRecycleItem': api + "asset/deleteAssetRecycleItem.do",
+      'deleteAssetRecycleMultiItem': api + "asset/deleteAssetRecycleMultiItem.do",
+      'notExistItemInAssetTable': api + "asset/notExistItemInAssetTable.do",
+      'notExistMultiItemInAssetTable': api + "asset/notExistMultiItemInAssetTable.do",
+      'recycleAssetItem': api + "asset/recycleAssetItem.do",
+      'recycleAssetMultiItem': api + "asset/recycleAssetMultiItem.do",
+
+      'getDepartment': api + "manage/department/getDepartment.do",
+      'addDepartment': api + "manage/department/addDepartment.do",
+      'updateDepartment': api + "manage/department/updateDepartment.do",
+      'deleteDepartment': api + "manage/department/deleteDepartment.do",
+      'getCategory': api + "manage/assetCategory/getCategory.do",
+      'addCategory': api + "manage/assetCategory/addCategory.do",
+      'updateCategory': api + "manage/assetCategory/updateCategory.do",
+      'deleteCategory': api + "manage/assetCategory/deleteCategory.do"
+    };
+
+    return interfaces;
+  }
+})();

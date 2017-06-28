@@ -21,9 +21,9 @@
                       </div>
                       <div class="card-block">
                         <div class="batch">
-                            <input type="checkbox" ng-model="$ctrl.selectAll" ng-click="$ctrl.selectAllCheckBox()">
-                            <button class="btn btn-primary btn-sm edit" ng-click="$ctrl.notExistMultiItemInAssetTable()"><span>批量恢复</span></button>
-                            <button class="btn btn-danger btn-sm edit" ng-click="$ctrl.showMultipleDeleteModal()"><span>批量删除</span></button>
+                            <input type="checkbox" ng-model="$ctrl.selectAll" ng-click="$ctrl.selectAllCheckBox()" style="margin-left:5px">
+                            <button class="btn btn-danger btn-sm f-r" ng-click="$ctrl.showMultipleDeleteModal()"><span>批量删除</span></button>
+                            <button class="btn btn-primary btn-sm f-r" ng-click="$ctrl.notExistMultiItemInAssetTable()"><span>批量恢复</span></button>
                         </div>
                         <div class="bootstrap-table">
                             <div class="fixed-table-toolbar"></div>
@@ -54,7 +54,6 @@
                         </div>
                       </div>
                   </div>
-                  <div class="clearfix"></div>
               </div>
           </div>
         </div>

@@ -16,9 +16,6 @@
   margin: 20px 0 !important;
   line-height: 35px;
 }
-.asset-pagination .fixed-table-pagination .pagination:first-child {
-  margin-right: 10px !important;
-}
 .asset-pagination .fixed-table-pagination .pagination li a {
   display: block;
   text-align: center;
@@ -88,7 +85,6 @@
 .body-wrapper .main {
   position: absolute;
   top: 55px;
-  bottom: 0;
   background-color: #e4e5e6;
   left: 0;
   right: 0;
@@ -96,9 +92,6 @@
 }
 .sidebar-fixed.sidebar-hidden .main {
   margin-left: 48px !important;
-}
-.asset-search .btn-group .btn {
-  margin-right: 15px;
 }
 .asset-search .fixed-table-body .fixed-table-loading {
   margin: 60px 0;
@@ -154,6 +147,11 @@
 .asset-inventory .fixed-table-body .btn {
   margin: 2px 0;
 }
+.asset-inventory .modal input {
+  display: inline-block;
+  margin-bottom: 30px;
+  width: 50%;
+}
 .cd-management .loading {
   margin: 60px;
   width: 100%;
@@ -186,7 +184,7 @@
   top: -8px;
   right: -8px;
 }
-.cd-management #warning_modal input {
+.cd-management .modal input {
   display: inline-block;
   margin-bottom: 30px;
   width: 50%;
@@ -259,6 +257,12 @@ ul {
   padding: 0 !important;
   margin: 0 !important;
 }
+.btn-group .btn {
+  margin-right: 10px;
+}
+.btn-group .btn:last-child {
+  margin-right: 0;
+}
 .form-control {
   height: 35px !important;
 }
@@ -313,13 +317,13 @@ ul {
   margin-top: 15px;
   padding: 0 40px;
 }
-.modal .modal-dialog .modal-content .modal-body form .form-group {
+.modal .modal-dialog .modal-content .modal-body form .form-inline {
   position: relative;
 }
-.modal .modal-dialog .modal-content .modal-body form .form-group input.form-control.ng-invalid + span {
+.modal .modal-dialog .modal-content .modal-body form .form-inline input.form-control.ng-invalid + span {
   position: absolute;
   top: 8px;
-  right: -80px;
+  right: 8px;
   text-align: right;
   color: red;
 }
