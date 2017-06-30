@@ -44,15 +44,6 @@
       showModal: false,
       showClearModal: false
     };
-    self.selectList = [
-      {
-        name: '未盘点',
-        value: 'getNotCompleteInventory'
-      }, {
-        name: '已盘点',
-        value: 'getCompleteInventory'
-      }
-    ]
 
     // function
     self.clean = clean

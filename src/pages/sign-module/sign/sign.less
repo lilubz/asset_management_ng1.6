@@ -1,0 +1,40 @@
+.sign-moudle {
+    form {
+        .input-group {
+            position: relative;
+
+            input.form-control {
+                &.ng-invalid {
+                    &+span {
+                        position: absolute;
+                        top: 7px;
+                        right: 20px;
+                        text-align: right;
+                        color: #20a8d8;
+                        display: inline-block;
+                        z-index: 99;
+                    }
+                }
+            }
+
+            .password-confirm {
+                color: #20a8d8;
+                position: absolute;
+                top: 7px;
+                right: 20px;
+                text-align: right;
+                color: #20a8d8;
+                display: inline-block;
+                z-index: 99;
+            }
+
+            .message-input {
+                &.ng-invalid {
+                    &+span {
+                        right: 120px !important;
+                    }
+                }
+            }
+        }
+    }
+}

@@ -9,7 +9,10 @@
                         </div>
                         <div class="card-block">
                             <div>
-                                <select-menu class="f-r" search-info="$ctrl.searchInfo" inventory-type="$ctrl.searchInfo.inventoryType" select-list="$ctrl.selectList" action="$ctrl.getInventory(searchType, searchKeyWord, assetCategory, departmentResponsibility, pageNum, url)"></select-menu>
+                                <select class="form-control f-r select-menu" ng-model="$ctrl.searchInfo.inventoryType" ng-change="$ctrl.getInventory('', '', '', '', 1, $ctrl.searchInfo.inventoryType)">
+                                    <option value="getNotCompleteInventory">未盘点</option>
+                                    <option value="getCompleteInventory">已盘点</option>
+                                </select>
                                 <div class="clearfix"></div>
                             </div>
                             <search-group search-type="$ctrl.searchInfo.searchType" search-info="$ctrl.searchInfo" last-search-record="$ctrl.lastSearchRecord" search-url="$ctrl.searchInfo.inventoryType" search-action="$ctrl.getInventory(searchType, searchKeyWord, assetCategory, departmentResponsibility, pageNum, url)"></search-group>

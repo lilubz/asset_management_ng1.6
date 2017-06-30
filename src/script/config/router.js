@@ -7,13 +7,33 @@
 
   /* @ngInject */
   function appRouter($stateProvider, $urlRouterProvider) {
+    var signState = {
+      abstract: true,
+      templateUrl: 'pages/sign-module/sign/sign.template.html'
+    }
     var loginState = {
-      url: '/login',
-      templateUrl: 'pages/login.html'
+      url: '^/login',
+      template: '<login></login>'
+    }
+    var registerState = {
+      url: '^/register',
+      template: '<register></register>'
+    }
+    var resetPasswordState = {
+      url: '^/resetPassword',
+      template: '<reset-password></reset-password>'
     }
     var mainState = {
       abstract: true,
-      templateUrl: 'pages/main/main.template.html'
+      templateUrl: 'pages/main/main.template.html',
+      resolve: {
+        checkLogin: [
+          'authorizationService',
+          function(authorizationService) {
+            return authorizationService.checkLogin()
+          }
+        ]
+      }
     }
     var assetManagementState = {
       // url: '^/assetManagement',
@@ -55,22 +75,17 @@
         parent: "main"
       }
     }
-    var errorState = {
-      url: '^/404',
-      templateUrl: 'pages/404.html',
-      breadcrumb: {
-        label: "404",
-        parent: "main"
-      }
-    }
-    $stateProvider.state('login', loginState);
+    $stateProvider.state('sign', signState);
+    $stateProvider.state('sign.login', loginState);
+    $stateProvider.state('sign.register', registerState);
+    $stateProvider.state('sign.resetPassword', resetPasswordState);
     $stateProvider.state('main', mainState);
     $stateProvider.state('main.assetManagement', assetManagementState);
     $stateProvider.state('main.assetManagement.assetSearch', assetSearch);
     $stateProvider.state('main.assetManagement.assetRecovery', assetRecovery);
     $stateProvider.state('main.assetManagement.assetsInventory', assetsInventory);
     $stateProvider.state('main.cdManagement', cdManagement);
-    $stateProvider.state('main.404', errorState);
+    // $stateProvider.state('main.404', errorState);
     $urlRouterProvider.otherwise('assetSearch');
 
   }
