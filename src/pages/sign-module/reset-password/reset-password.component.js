@@ -13,10 +13,17 @@
     return component;
   }
 
-  resetPasswordCtrl.$inject = ['$state', '$interval', 'interfacesService', 'httpService', 'SweetAlert'];
+  resetPasswordCtrl.$inject = [
+    '$state',
+    '$timeout',
+    '$interval',
+    'interfacesService',
+    'httpService',
+    'SweetAlert'
+  ];
 
   /* @ngInject */
-  function resetPasswordCtrl($state, $interval, interfacesService, httpService, SweetAlert) {
+  function resetPasswordCtrl($state, $timeout, $interval, interfacesService, httpService, SweetAlert) {
     var self = this;
     var count = 60;
     self.time = '';
@@ -58,7 +65,7 @@
       var data = {
         phone: self.user.phone
       }
-      httpService.formPostRequest(interfacesService.sendResetVerificationCode, data).then(function(response) {
+      httpService.withCredentialsPostRequest(interfacesService.sendResetVerificationCode, data).then(function(response) {
         if (response.data.status === 0) {
           self.countDown();
         } else {
@@ -76,7 +83,7 @@
         phone: user.phone,
         verificationCode: user.message
       }
-      httpService.formPostRequest(interfacesService.resetPassword, data).then(function(response) {
+      httpService.withCredentialsPostRequest(interfacesService.resetPassword, data).then(function(response) {
         if (response.data.status === 0) {
           SweetAlert.swal({
             title: "重置密码成功",
@@ -84,7 +91,9 @@
             type: "success",
             confirmButtonText: "去登陆"
           }, function() {
-            $state.go('sign.login')
+            $timeout(function() {
+              $state.go('sign.login')
+            }, 500)
           });
         } else {
           SweetAlert.swal({title: "重置密码失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});

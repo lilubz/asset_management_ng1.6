@@ -121,7 +121,6 @@
       angular.forEach(modalInfo.modal, function(value, key) {
         modalInfo.modal[key] = '';
       });
-      self.selectedItem = {};
     };
     // 换页
     function searchPageNumberChange(newValue) {
@@ -137,7 +136,6 @@
       self.loading = true;
       httpService.getTableInfoRequest(interfacesService.getAssetUrl, searchType, searchKeyWord, assetCategory, departmentResponsibility, pageNum, self.searchInfo.searchPageSize).then(function(response) {
         if (response.status == 200 && response.data.data.list) {
-          console.log('666')
           lastSearchRecord.searchType = searchType;
           lastSearchRecord.searchKeyWord = searchKeyWord;
           lastSearchRecord.assetCategory = assetCategory;
@@ -159,36 +157,46 @@
     // 添加信息
     function addItem() {
       var lastSearchRecord = self.lastSearchRecord;
+      var modalInfo = self.modalInfo;
+      if(!modalInfo.modal.bookAmount || modalInfo.modal.bookAmount<0){
+        modalInfo.modal.bookAmount = 0;
+      }
+      if(!modalInfo.modal.inventoryAmount || modalInfo.modal.inventoryAmount<0){
+        modalInfo.modal.inventoryAmount = 0;
+      }
       httpService.formPostRequest(interfacesService.addUrl, self.modalInfo.modal).then(function(response) {
-        self.clean();
         if (response.data.status == 0) {
           SweetAlert.swal("添加成功", response.data.msg, "success");
           self.modalInfo.addModal.show = false;
+          self.clean();
           self.searchItem(lastSearchRecord.searchType, lastSearchRecord.searchKeyWord, lastSearchRecord.assetCategory, lastSearchRecord.departmentResponsibility, 1);
         } else {
           SweetAlert.swal({title: "添加失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-          self.modalInfo.addModal.show = false;
         }
       }).catch(function(response) {
-        self.clean();
         SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
       });
     }
     // 编辑信息
     function editItem() {
       var lastSearchRecord = self.lastSearchRecord;
+      var modalInfo = self.modalInfo;
+      if(!modalInfo.modal.bookAmount || modalInfo.modal.bookAmount<0){
+        modalInfo.modal.bookAmount = 0;
+      }
+      if(!modalInfo.modal.inventoryAmount || modalInfo.modal.inventoryAmount<0){
+        modalInfo.modal.inventoryAmount = 0;
+      }
       httpService.formPostRequest(interfacesService.updateUrl, self.modalInfo.modal).then(function(response) {
-        self.clean();
         if (response.data.status == 0) {
           SweetAlert.swal("编辑成功", response.data.msg, "success");
           self.modalInfo.editModal.show = false;
+          self.clean();
           self.searchItem(lastSearchRecord.searchType, lastSearchRecord.searchKeyWord, lastSearchRecord.assetCategory, lastSearchRecord.departmentResponsibility, self.searchInfo.searchPageNumber);
         } else {
           SweetAlert.swal({title: "编辑失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-          self.modalInfo.editModal.show = false;
         }
       }).catch(function(response) {
-        self.clean();
         SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
       });
     }
@@ -198,18 +206,16 @@
       var data = {
         'assetId': self.selectedItem['assetId']
       };
+      self.modalInfo.deleteModal.show = false;
+      self.selectedItem = {};
       httpService.formPostRequest(interfacesService.deleteUrl, data).then(function(response) {
-        self.clean();
         if (response.data.status == 0) {
           SweetAlert.swal("删除成功", response.data.msg, "success");
-          self.modalInfo.deleteModal.show = false;
           self.searchItem(lastSearchRecord.searchType, lastSearchRecord.searchKeyWord, lastSearchRecord.assetCategory, lastSearchRecord.departmentResponsibility, self.searchInfo.searchPageNumber);
         } else {
           SweetAlert.swal({title: "删除失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-          self.modalInfo.deleteModal.show = false;
         }
       }).catch(function(response) {
-        self.clean();
         SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
       });
     }

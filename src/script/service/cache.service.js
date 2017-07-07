@@ -15,8 +15,8 @@
 
     return service;
 
-    function put(key, value) {
-      $cookies.put(key, value);
+    function put(key, value, expires) {
+      $cookies.put(key, value, expires);
     }
     function get(key) {
       return $cookies.get(key);

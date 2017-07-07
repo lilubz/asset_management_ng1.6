@@ -13,11 +13,13 @@
     return component;
   }
 
-  appHeadCtrl.$inject = ['$state', 'interfacesService', 'httpService', 'cacheService'];
+  appHeadCtrl.$inject = ['$state', 'interfacesService', 'httpService', 'cacheService', 'authorizationService'];
 
   /* @ngInject */
-  function appHeadCtrl($state, interfacesService, httpService, cacheService) {
+  function appHeadCtrl($state, interfacesService, httpService, cacheService, authorizationService) {
     var self = this;
+    self.userInfo = authorizationService.getUserInfo();
+
     // function
     self.logout = logout;
 
@@ -34,6 +36,5 @@
         SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
       })
     }
-
   }
 })();

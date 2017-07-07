@@ -13,10 +13,17 @@
     return component;
   }
 
-  registerCtrl.$inject = ['$state', '$interval', 'interfacesService', 'httpService', 'SweetAlert'];
+  registerCtrl.$inject = [
+    '$state',
+    '$timeout',
+    '$interval',
+    'interfacesService',
+    'httpService',
+    'SweetAlert'
+  ];
 
   /* @ngInject */
-  function registerCtrl($state, $interval, interfacesService, httpService, SweetAlert) {
+  function registerCtrl($state, $timeout, $interval, interfacesService, httpService, SweetAlert) {
     var self = this;
     var count = 60;
     self.time = '';
@@ -59,7 +66,7 @@
       var data = {
         phone: self.user.phone
       }
-      httpService.formPostRequest(interfacesService.sendVerificationCode, data).then(function(response) {
+      httpService.withCredentialsPostRequest(interfacesService.sendVerificationCode, data).then(function(response) {
         if (response.data.status === 0) {
           self.countDown();
         } else {
@@ -78,7 +85,7 @@
         phone: user.phone,
         verificationCode: user.message
       }
-      httpService.formPostRequest(interfacesService.register, data).then(function(response) {
+      httpService.withCredentialsPostRequest(interfacesService.register, data).then(function(response) {
         if (response.data.status === 0) {
           SweetAlert.swal({
             title: "注册成功",
@@ -86,7 +93,9 @@
             type: "success",
             confirmButtonText: "去登陆"
           }, function() {
-            $state.go('sign.login')
+            $timeout(function() {
+              $state.go('sign.login')
+            }, 500)
           });
         } else {
           SweetAlert.swal({title: "注册失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});

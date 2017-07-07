@@ -33,9 +33,11 @@
         password: user.password,
         phone: user.phone
       }
-      httpService.formPostRequest(interfacesService.login, data).then(function(response) {
+      httpService.withCredentialsPostRequest(interfacesService.login, data).then(function(response) {
         if (response.data.status === 0) {
-          cacheService.put('identity', angular.toJson(self.user));
+          var expireDate = new Date();
+          expireDate.setDate(expireDate.getDate() + 7);
+          cacheService.put('identity', angular.toJson(response.data.data), {'expires': expireDate.toUTCString()});
           $state.go('main.assetManagement.assetSearch');
         } else {
           SweetAlert.swal({title: "登陆失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
