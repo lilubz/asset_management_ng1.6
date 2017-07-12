@@ -268,6 +268,9 @@
 .d-ib {
   display: inline-block;
 }
+.d-n {
+  display: none;
+}
 .d-b {
   display: block;
 }
@@ -363,9 +366,22 @@ ul {
   padding-right: 15px;
   padding-left: 15px;
 }
-.showModal {
+.modal.in {
   display: block !important;
-  opacity: 1 !important;
+  opacity: 1;
+}
+.modal-backdrop.in {
+  opacity: 0.5 !important;
+  filter: alpha(opacity=50);
+}
+.modal-open {
+  overflow: hidden;
+}
+.modal-open .modal {
+  overflow: hidden;
+}
+.modal {
+  z-index: 1999;
 }
 .modal .modal-dialog {
   margin: 232px auto;

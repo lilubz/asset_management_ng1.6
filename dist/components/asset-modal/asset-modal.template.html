@@ -1,8 +1,8 @@
-<div id="add_modal">
+<div id="add_modal" class="modal fade" ng-class="{'in':$ctrl.showModal}">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <button class="close f-r" type="button" ng-click="$ctrl.showModal=false; $ctrl.clean()">×</button>
+                <button class="close f-r" type="button" ng-click="$ctrl.hideModal()">×</button>
                 <h5 ng-bind="$ctrl.modalTitle"></h5>
             </div>
             <div class="modal-body">
@@ -80,7 +80,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" type="button" ng-click="$ctrl.showModal=false; $ctrl.clean()"><span>取消</span></button>
+                <button class="btn btn-secondary" type="button" ng-click="$ctrl.hideModal()"><span>取消</span></button>
                 <button class="btn btn-primary" type="button" ng-click="$ctrl.submit()" validation-submit="formAdd" ng-disabled="!formAdd.$valid"><span ng-bind="$ctrl.btnName"></span></button>
             </div>
         </div>

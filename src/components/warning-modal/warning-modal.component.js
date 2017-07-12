@@ -10,8 +10,8 @@
       controller: warningModalCtrl,
       bindings: {
         modalTitle: '@',
-        showModal: '=',
-        clean: '&'
+        showModal: '<',
+        hideModal: '&'
       },
       transclude: {
         'div': '?modalDiv',

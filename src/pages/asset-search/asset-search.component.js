@@ -17,12 +17,13 @@
     'interfacesService',
     'httpService',
     'assetTableService',
+    'domFactory',
     'FileUploader',
     'SweetAlert'
   ];
 
   /* @ngInject */
-  function assetSearchCtrl(interfacesService, httpService, assetTableService, FileUploader, SweetAlert) {
+  function assetSearchCtrl(interfacesService, httpService, assetTableService, domFactory, FileUploader, SweetAlert) {
     var self = this;
     self.data = {};
     self.theadInfo = {};
@@ -43,21 +44,13 @@
       departmentResponsibility: ''
     };
     self.modalInfo = {
-      addModal: {
-        show: false
-      },
-      editModal: {
-        show: false
-      },
-      deleteModal: {
-        show: false
-      },
+      showAddModal: false,
+      showEditModal: false,
+      showDeleteModal: false,
+      showImportModal: false,
+      showExportModal: false,
       importModal: {
-        show: false,
         currentStep: 1
-      },
-      exportModal: {
-        show: false
       },
       modal: {
         assetId: '',
@@ -81,8 +74,10 @@
     });
 
     // function
+    self.showModal = showModal;
     self.showEditModal = showEditModal;
     self.showDeleteModal = showDeleteModal;
+    self.hideModal = hideModal;
     self.clean = clean;
     self.searchPageNumberChange = searchPageNumberChange;
     self.searchItem = searchItem;
@@ -102,18 +97,34 @@
 
     self.searchItem('', '', '', '', 1);
 
-    // 显示编辑modal
+    // 显示模态框
+    function showModal(name){
+      self.modalInfo[name] = true;
+      domFactory.modalOpen();
+    }
+
+    // 显示编辑模态框
     function showEditModal(item) {
       var modalInfo = self.modalInfo;
-      modalInfo.editModal.show = true;
+      modalInfo.showEditModal = true;
+      domFactory.modalOpen();
       angular.forEach(modalInfo.modal, function(value, key) {
         modalInfo.modal[key] = item[key];
       });
     }
-    // 显示删除modal
+    // 显示删除模态框
     function showDeleteModal(item) {
-      self.modalInfo.deleteModal.show = true;
+      self.modalInfo.showDeleteModal = true;
+      domFactory.modalOpen();
       self.selectedItem = item;
+    }
+    // 隐藏模态框
+    function hideModal(name) {
+      self.modalInfo[name] = false;
+      if(name === 'showAddModal' || name === 'showEditModal'){
+        self.clean();
+      }
+      domFactory.modalHide();
     }
     // 清理modal信息
     function clean() {
@@ -121,7 +132,7 @@
       angular.forEach(modalInfo.modal, function(value, key) {
         modalInfo.modal[key] = '';
       });
-    };
+    }
     // 换页
     function searchPageNumberChange(newValue) {
       if (newValue < 1)
@@ -129,7 +140,7 @@
       if (newValue > self.data.pages)
         return;
       self.searchInfo.searchPageNumber = newValue;
-    };
+    }
     // 查询信息
     function searchItem(searchType, searchKeyWord, assetCategory, departmentResponsibility, pageNum) {
       var lastSearchRecord = self.lastSearchRecord;
@@ -167,8 +178,7 @@
       httpService.formPostRequest(interfacesService.addUrl, self.modalInfo.modal).then(function(response) {
         if (response.data.status == 0) {
           SweetAlert.swal("添加成功", response.data.msg, "success");
-          self.modalInfo.addModal.show = false;
-          self.clean();
+          self.hideModal('showAddModal');
           self.searchItem(lastSearchRecord.searchType, lastSearchRecord.searchKeyWord, lastSearchRecord.assetCategory, lastSearchRecord.departmentResponsibility, 1);
         } else {
           SweetAlert.swal({title: "添加失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
@@ -190,8 +200,7 @@
       httpService.formPostRequest(interfacesService.updateUrl, self.modalInfo.modal).then(function(response) {
         if (response.data.status == 0) {
           SweetAlert.swal("编辑成功", response.data.msg, "success");
-          self.modalInfo.editModal.show = false;
-          self.clean();
+          self.hideModal('showEditModal');
           self.searchItem(lastSearchRecord.searchType, lastSearchRecord.searchKeyWord, lastSearchRecord.assetCategory, lastSearchRecord.departmentResponsibility, self.searchInfo.searchPageNumber);
         } else {
           SweetAlert.swal({title: "编辑失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
@@ -206,7 +215,7 @@
       var data = {
         'assetId': self.selectedItem['assetId']
       };
-      self.modalInfo.deleteModal.show = false;
+      self.hideModal('showDeleteModal');
       self.selectedItem = {};
       httpService.formPostRequest(interfacesService.deleteUrl, data).then(function(response) {
         if (response.data.status == 0) {
@@ -237,7 +246,7 @@
     }
     // 初始化导入弹出框
     function importModalInitialize() {
-      self.modalInfo.importModal.show = false;
+      self.hideModal('showImportModal');
       self.modalInfo.importModal.currentStep = 1;
       if (self.uploader.queue.length)
         self.uploader.clearQueue();
@@ -287,7 +296,7 @@
       }
 
       self.exportUrl = interfacesService.exportUrl + str;
-      self.modalInfo.exportModal.show = true;
+      self.showModal('showExportModal');
     }
     // angular-file-upload钩子函数，添加上传文件后触发
     function onAfterAddingFile(fileItem) {

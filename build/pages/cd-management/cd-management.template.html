@@ -30,7 +30,7 @@
                                     <h5>查不到此信息</h5>
                                 </div>
                                 <div class="col-md-3 col-sm-4 col-xs-6 ta-c" ng-repeat="item in $ctrl.departmentArray" ng-show="$ctrl.departmentArray.length && !$ctrl.departmentLoading">
-                                    <div class="dept-box" ng-mouseover="$ctrl.deptShowPencilLable=$index" ng-mouseleave="$ctrl.deptShowPencilLable=999" ng-click="$ctrl.showModal(item, 'Department')">
+                                    <div class="dept-box" ng-mouseover="$ctrl.deptShowPencilLable=$index" ng-mouseleave="$ctrl.deptShowPencilLable=999" ng-click="$ctrl.showModal('showDepartmentModal', item)">
                                         <span class="dept-name" ng-bind="item.departmentName"></span>
                                         <span class="fa fa-pencil" ng-show="$ctrl.deptShowPencilLable===$index"></span>
                                     </div>
@@ -71,7 +71,7 @@
                                     <h5>查不到此信息</h5>
                                 </div>
                                 <div class="col-md-3 col-sm-4 col-xs-6 ta-c" ng-repeat="item in $ctrl.categoryArray" ng-show="$ctrl.categoryArray.length && !$ctrl.categoryLoading">
-                                    <div class="dept-box" ng-mouseover="$ctrl.catShowPencilLable=$index" ng-mouseleave="$ctrl.catShowPencilLable=999" ng-click="$ctrl.showModal(item, 'Category')">
+                                    <div class="dept-box" ng-mouseover="$ctrl.catShowPencilLable=$index" ng-mouseleave="$ctrl.catShowPencilLable=999" ng-click="$ctrl.showModal('showCategoryModal', item)">
                                         <span class="dept-name" ng-bind="item.categoryName"></span>
                                         <span class="fa fa-pencil" ng-show="$ctrl.catShowPencilLable===$index"></span>
                                     </div>
@@ -85,14 +85,14 @@
 
 
         <!-- 修改/删除部门模态框 -->
-        <warning-modal class="modal fade" ng-class="{'showModal':$ctrl.modalInfo.showDepartmentModal}" modal-title="编辑部门信息" show-modal="$ctrl.modalInfo.showDepartmentModal">
+        <warning-modal modal-title="编辑部门信息" show-modal="$ctrl.modalInfo.showDepartmentModal" hide-modal="$ctrl.hideModal('showDepartmentModal')" ng-show="$ctrl.modalInfo.showDepartmentModal">
             <modal-text>修改/删除部门</modal-text>
             <modal-div><input class="form-control" type="text" name="" ng-model="$ctrl.selectedItem.departmentName"></modal-div>
             <button class="btn btn-primary" type="button" ng-click="$ctrl.updateDepartment()"><span></span>确认修改</button>
             <button class="btn btn-danger f-l" type="button" ng-click="$ctrl.deleteDatas('department', 'Department')"><span>确认删除</span></button>
         </warning-modal>
         <!-- 修改/删除类别模态框 -->
-        <warning-modal class="modal fade" ng-class="{'showModal':$ctrl.modalInfo.showCategoryModal}" modal-title="编辑类别信息" show-modal="$ctrl.modalInfo.showCategoryModal">
+        <warning-modal modal-title="编辑类别信息" show-modal="$ctrl.modalInfo.showCategoryModal" hide-modal="$ctrl.hideModal('showCategoryModal')" ng-show="$ctrl.modalInfo.showCategoryModal">
             <modal-text>修改/删除类别</modal-text>
             <modal-div><input class="form-control" type="text" name="" ng-model="$ctrl.selectedItem.categoryName"></modal-div>
             <button class="btn btn-primary" type="button" ng-click="$ctrl.updateCategory()"><span></span>确认修改</button>

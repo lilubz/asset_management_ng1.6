@@ -13,10 +13,10 @@
     return component;
   }
 
-  assetRecoveryCtrl.$inject = ['interfacesService', 'httpService', 'assetTableService', 'SweetAlert'];
+  assetRecoveryCtrl.$inject = ['interfacesService', 'httpService', 'assetTableService', 'domFactory', 'SweetAlert'];
 
   /* @ngInject */
-  function assetRecoveryCtrl(interfacesService, httpService, assetTableService, SweetAlert) {
+  function assetRecoveryCtrl(interfacesService, httpService, assetTableService, domFactory, SweetAlert) {
     var self = this;
     self.data = {};
     self.theadInfo = {};
@@ -40,14 +40,14 @@
       departmentResponsibility: ''
     };
     self.modalInfo = {
-      showSingleDeleteModal: false,
+      showDeleteModal: false,
       showMultipleDeleteModal: false
     };
 
     // function
     self.searchPageNumberChange = searchPageNumberChange
-    self.showSingleDeleteModal = showSingleDeleteModal
-    self.showMultipleDeleteModal = showMultipleDeleteModal
+    self.showModal = showModal
+    self.hideModal = hideModal
     self.selectAllCheckBox = selectAllCheckBox
     self.selectSingleCheckBox = selectSingleCheckBox
     self.getAssetRecycle = getAssetRecycle
@@ -69,22 +69,29 @@
         return;
       self.searchInfo.searchPageNumber = newValue;
     }
-    // 显示删除模态框
-    function showSingleDeleteModal(item) {
-      self.modalInfo.showSingleDeleteModal = true;
-      self.selectedItem = item;
+    // 显示模态框
+    function showModal(name, item) {
+      if(name === 'showDeleteModal'){
+        self.modalInfo.showDeleteModal = true;
+        domFactory.modalOpen();
+        self.selectedItem = item;
+      }
+      if(name === 'showMultipleDeleteModal'){
+        self.selectedArray = self.createDataList();
+        if (!self.selectedArray.length)
+          return;
+        self.modalInfo.showMultipleDeleteModal = true;
+        domFactory.modalOpen();
+      }
     }
-    // 显示批量删除模态框
-    function showMultipleDeleteModal() {
-      self.selectedArray = self.createDataList();
-      if (!self.selectedArray.length)
-        return;
-      self.modalInfo.showMultipleDeleteModal = true;
+    // 隐藏模态框
+    function hideModal(name) {
+      self.modalInfo[name] = false;
+      domFactory.modalHide();
     }
     // 全选/全不选
     function selectAllCheckBox() {
       var selectAll = self.selectAll;
-      // self.isSelectedArray[0] = selectAll;
       angular.forEach(self.isSelectedArray, function(data, index, array) {
         array[index] = selectAll;
       });
@@ -178,11 +185,11 @@
       httpService.formPostRequest(interfacesService.deleteAssetRecycleItem, data).then(function(response) {
         if (response.data.status == 0) {
           SweetAlert.swal("删除成功", response.data.msg, "success");
-          self.modalInfo.showSingleDeleteModal = false;
+          self.hideModal('showDeleteModal');
           self.getAssetRecycle(lastSearchRecord.searchType, lastSearchRecord.searchKeyWord, lastSearchRecord.assetCategory, lastSearchRecord.departmentResponsibility, self.searchInfo.searchPageNumber);
         } else {
           SweetAlert.swal({title: "删除失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-          self.modalInfo.showSingleDeleteModal = false;
+          self.hideModal('showDeleteModal');
         }
       }).catch(function(response) {
         SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
@@ -252,11 +259,11 @@
       httpService.JSONPostRequest(interfacesService.deleteAssetRecycleMultiItem, self.selectedArray).then(function(response) {
         if (response.data.status == 0) {
           SweetAlert.swal("删除成功", response.data.msg, "success");
-          self.modalInfo.showMultipleDeleteModal = false;
+          self.hideModal('showMultipleDeleteModal');
           self.getAssetRecycle(lastSearchRecord.searchType, lastSearchRecord.searchKeyWord, lastSearchRecord.assetCategory, lastSearchRecord.departmentResponsibility, self.searchInfo.searchPageNumber);
         } else {
           SweetAlert.swal({title: "删除失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-          self.modalInfo.showMultipleDeleteModal = false;
+          self.hideModal('showMultipleDeleteModal');
         }
       }).catch(function(response) {
         SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});

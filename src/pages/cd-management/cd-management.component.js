@@ -13,10 +13,10 @@
     return component;
   }
 
-  cdManagementCtrl.$inject = ['interfacesService', 'httpService', 'SweetAlert'];
+  cdManagementCtrl.$inject = ['interfacesService', 'httpService', 'domFactory', 'SweetAlert'];
 
   /* @ngInject */
-  function cdManagementCtrl(interfacesService, httpService, SweetAlert) {
+  function cdManagementCtrl(interfacesService, httpService, domFactory, SweetAlert) {
     var self = this
     self.departmentLoading = false;
     self.categoryLoading = false;
@@ -34,6 +34,7 @@
 
     // function
     self.showModal = showModal
+    self.hideModal = hideModal
     self.getDatas = getDatas
     self.deleteDatas = deleteDatas
     self.addDepartment = addDepartment
@@ -45,10 +46,16 @@
     self.getDatas('category', 'Category')
 
     // 显示模态框
-    function showModal(item, param) {
-      self.modalInfo['show' + param + 'Modal'] = true;
+    function showModal(name, item) {
+      self.modalInfo[name] = true;
+      domFactory.modalOpen();
       self.selectedItem = item;
     };
+    // 隐藏模态框
+    function hideModal(name) {
+      self.modalInfo[name] = false;
+      domFactory.modalHide();
+    }
     // 获取
     function getDatas(param, Param) {
       self[param + 'Loading'] = true;
@@ -72,11 +79,11 @@
       httpService.formPostRequest(interfacesService['delete' + Param], data).then(function(response) {
         if (response.data.status == 0) {
           SweetAlert.swal("删除成功", response.data.msg, "success");
-          self.modalInfo['show' + Param + 'Modal'] = false;
+          self.hideModal('show' + Param + 'Modal');
           self.getDatas(param, Param);
         } else {
           SweetAlert.swal({title: "删除失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-          self.modalInfo['show' + Param + 'Modal'] = false;
+          self.hideModal('show' + Param + 'Modal');
         }
       }).catch(function(response) {
         SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
@@ -90,11 +97,9 @@
       httpService.formPostRequest(interfacesService.addDepartment, data).then(function(response) {
         if (response.data.status == 0) {
           SweetAlert.swal("增加成功", response.data.msg, "success");
-          self.modalInfo.showDepartmentModal = false;
           self.getDatas('department', 'Department');
         } else {
           SweetAlert.swal({title: "增加失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-          self.modalInfo.showDepartmentModal = false;
         }
       }).catch(function(response) {
         SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
@@ -109,11 +114,10 @@
       httpService.formPostRequest(interfacesService.updateDepartment, data).then(function(response) {
         if (response.data.status == 0) {
           SweetAlert.swal("编辑成功", response.data.msg, "success");
-          self.modalInfo.showDepartmentModal = false;
+          self.hideModal('showDepartmentModal');
           self.getDatas('department', 'Department');
         } else {
           SweetAlert.swal({title: "编辑失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-          self.modalInfo.showDepartmentModal = false;
         }
       }).catch(function(response) {
         SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
@@ -127,11 +131,9 @@
       httpService.formPostRequest(interfacesService.addCategory, data).then(function(response) {
         if (response.data.status == 0) {
           SweetAlert.swal("增加成功", response.data.msg, "success");
-          self.modalInfo.showCategoryModal = false;
           self.getDatas('category', 'Category');
         } else {
           SweetAlert.swal({title: "增加失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-          self.modalInfo.showCategoryModal = false;
         }
       }).catch(function(response) {
         SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
@@ -146,11 +148,10 @@
       httpService.formPostRequest(interfacesService.updateCategory, data).then(function(response) {
         if (response.data.status == 0) {
           SweetAlert.swal("编辑成功", response.data.msg, "success");
-          self.modalInfo.showCategoryModal = false;
+          self.hideModal('showCategoryModal');
           self.getDatas('category', 'Category');
         } else {
           SweetAlert.swal({title: "编辑失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-          self.modalInfo.showCategoryModal = false;
         }
       }).catch(function(response) {
         SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});

@@ -1,8 +1,8 @@
-<div id="warning_modal" table-index="-1">
+<div id="warning_modal" class="modal fade" ng-class="{'in':$ctrl.showModal}">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <button class="close" type="button" ng-click="$ctrl.showModal=false; $ctrl.clean()">×</button>
+                <button class="close" type="button" ng-click="$ctrl.hideModal()">×</button>
                 <h5 class="modal-title" ng-bind="$ctrl.modalTitle"></h5>
             </div>
             <div class="modal-body">
@@ -13,7 +13,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" type="button" ng-click="$ctrl.showModal=false; $ctrl.clean()"><span>取消</span></button>
+                <button class="btn btn-secondary" type="button" ng-click="$ctrl.hideModal()"><span>取消</span></button>
                 <ng-transclude></ng-transclude>
             </div>
         </div>

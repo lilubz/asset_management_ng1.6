@@ -10,11 +10,11 @@
                         <div class="card-block">
                             <search-group search-type="$ctrl.searchInfo.searchType" search-info="$ctrl.searchInfo" last-search-record="$ctrl.lastSearchRecord" search-url="'getAssetUrl'" search-action="$ctrl.searchItem(searchType, searchKeyWord, assetCategory, departmentResponsibility, pageNum)"></search-group>
                             <div class="btn-group f-r">
-                                <button class="btn btn-sm btn-outline-primary" ng-click="$ctrl.modalInfo.addModal.show=true">
+                                <button class="btn btn-sm btn-outline-primary" ng-click="$ctrl.showModal('showAddModal')">
                                       <span class="fa fa-plus"></span>
                                       <span>添加资产信息</span>
                                 </button>
-                                <button class="btn btn-sm btn-outline-primary" ng-click="$ctrl.modalInfo.importModal.show=true">
+                                <button class="btn btn-sm btn-outline-primary" ng-click="$ctrl.showModal('showImportModal')">
                                       <span class="fa fa-download"></span>
                                       <span>导入</span>
                                 </button>
@@ -67,25 +67,25 @@
         </div>
     </div>
     <!-- 添加资产信息模态框 -->
-    <asset-modal class="modal fade" ng-class="{'showModal':$ctrl.modalInfo.addModal.show}" modal-title="添加资产记录" btn-name="提交" modal="$ctrl.modalInfo.modal" is-disable="false" show-modal="$ctrl.modalInfo.addModal.show" clean="$ctrl.clean()" submit="$ctrl.addItem()"></asset-modal>
+    <asset-modal modal-title="添加资产记录" btn-name="提交" modal="$ctrl.modalInfo.modal" is-disable="false" show-modal="$ctrl.modalInfo.showAddModal" hide-modal="$ctrl.hideModal('showAddModal')" submit="$ctrl.addItem()" ng-show="$ctrl.modalInfo.showAddModal"></asset-modal>
     <!-- 编辑资产信息模态框 -->
-    <asset-modal class="modal fade" ng-class="{'showModal':$ctrl.modalInfo.editModal.show}" modal-title="编辑资产记录" btn-name="确认更改" modal="$ctrl.modalInfo.modal" is-disable="true" show-modal="$ctrl.modalInfo.editModal.show" clean="$ctrl.clean()" submit="$ctrl.editItem()"></asset-modal>
+    <asset-modal modal-title="编辑资产记录" btn-name="确认更改" modal="$ctrl.modalInfo.modal" is-disable="true" show-modal="$ctrl.modalInfo.showEditModal" hide-modal="$ctrl.hideModal('showEditModal')" submit="$ctrl.editItem()" ng-show="$ctrl.modalInfo.showEditModal"></asset-modal>
     <!-- 删除提示模态框 -->
-    <warning-modal class="modal fade" ng-class="{'showModal':$ctrl.modalInfo.deleteModal.show}" modal-title="警告" show-modal="$ctrl.modalInfo.deleteModal.show" clean="$ctrl.clean()">
+    <warning-modal modal-title="警告" show-modal="$ctrl.modalInfo.showDeleteModal" hide-modal="$ctrl.hideModal('showDeleteModal')" ng-show="$ctrl.modalInfo.showDeleteModal">
         <modal-text>确认从资产列表中删除？</modal-text>
         <modal-reminder>(注意：从列表中后，该条信息将被放入回收站)</modal-reminder>
         <button class="btn btn-danger" type="button" ng-click="$ctrl.deleteItem()"><span>确认删除</span></button>
     </warning-modal>
     <!-- 导出资产信息模态框 -->
-    <warning-modal class="modal fade" ng-class="{'showModal':$ctrl.modalInfo.exportModal.show}" modal-title="导出资产信息" show-modal="$ctrl.modalInfo.exportModal.show" clean="$ctrl.clean()">
+    <warning-modal modal-title="导出资产信息" show-modal="$ctrl.modalInfo.showExportModal" hide-modal="$ctrl.hideModal('showExportModal')" ng-show="$ctrl.modalInfo.showExportModal">
         <modal-text>确认导出资产信息？</modal-text>
         <a class="d-ib" ng-href="{{$ctrl.exportUrl}}" target="_blank" download="assetRecord.xlsx">
-            <button class="btn btn-primary" type="button" ng-click="$ctrl.modalInfo.exportModal.show=false"><span>确认下载</span></button>
+            <button class="btn btn-primary" type="button" ng-click="$ctrl.hideModal('showExportModal')"><span>确认下载</span></button>
         </a>
     </warning-modal>
 
     <!-- 导入资产信息模态框 -->
-    <div id="import_modal" class="modal fade" table-index="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" ng-class="{'showModal':$ctrl.modalInfo.importModal.show}">
+    <div id="import_modal" class="modal fade" ng-class="{'in':$ctrl.modalInfo.showImportModal}" ng-show="$ctrl.modalInfo.showImportModal">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">

@@ -13,8 +13,8 @@
         btnName: '@',
         isDisable: '<',
         modal: '<',
-        showModal: '=',
-        clean: '&',
+        showModal: '<',
+        hideModal: '&',
         submit: "&"
       }
     };

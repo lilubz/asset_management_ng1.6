@@ -17,11 +17,11 @@
                             </div>
                             <search-group search-type="$ctrl.searchInfo.searchType" search-info="$ctrl.searchInfo" last-search-record="$ctrl.lastSearchRecord" search-url="$ctrl.searchInfo.inventoryType" search-action="$ctrl.getInventory(searchType, searchKeyWord, assetCategory, departmentResponsibility, pageNum, url)"></search-group>
                             <div class="btn-group f-r">
-                                <button class="btn btn-outline-primary" ng-click="$ctrl.modalInfo.showModal=true" style="width:105px">
+                                <button class="btn btn-outline-primary" ng-click="$ctrl.showModal('showCheckModal')" style="width:105px">
                                   <span class="fa fa-shopping-cart"></span>
                                   <span>盘点</span>
                                 </button>
-                                <button class="btn btn-outline-danger" ng-click="$ctrl.modalInfo.showClearModal=true">
+                                <button class="btn btn-outline-danger" ng-click="$ctrl.showModal('showClearModal')">
                                   <span class="fa fa-trash"></span>
                                   <span>清空盘点</span>
                                 </button>
@@ -68,14 +68,14 @@
         </div>
     </div>
     <!-- 盘点资产模态框 -->
-    <warning-modal class="modal fade" ng-class="{'showModal':$ctrl.modalInfo.showModal}" modal-title="资产盘点" show-modal="$ctrl.modalInfo.showModal" clean="$ctrl.clean()">
+    <warning-modal modal-title="资产盘点" show-modal="$ctrl.modalInfo.showCheckModal" hide-modal="$ctrl.hideModal('showCheckModal')" ng-show="$ctrl.modalInfo.showCheckModal">
         <modal-text>输入要盘点资产的资产编号</modal-text>
         <modal-reminder>(注意：该资产的资产盘点数量将变为1)</modal-reminder>
         <modal-div><input type="text" class="form-control" placeholder="请输入资产编号" ng-model="$ctrl.assetId"></modal-div>
         <button class="btn btn-primary" type="button" ng-click="$ctrl.assetInventory()"><span>确认盘点</span></button>
     </warning-modal>
     <!-- 清空资产盘点模态框 -->
-    <warning-modal class="modal fade" ng-class="{'showModal':$ctrl.modalInfo.showClearModal}" modal-title="警告" show-modal="$ctrl.modalInfo.showClearModal">
+    <warning-modal modal-title="警告" show-modal="$ctrl.modalInfo.showClearModal" hide-modal="$ctrl.hideModal('showClearModal')" ng-show="$ctrl.modalInfo.showClearModal">
         <modal-text>确认清空资产盘点？</modal-text>
         <modal-reminder>(注意：所有资产的盘点数量将变为0，且不能恢复)</modal-reminder>
         <button class="btn btn-danger" type="button" ng-click="$ctrl.clearInventoryAmount()"><span>确认清空</span></button>

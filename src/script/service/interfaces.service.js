@@ -8,9 +8,8 @@
 
   /* @ngInject */
   function factory() {
-    // var main = "http://192.168.1.107:3001/";
-    var main = "http://192.168.1.124:3001/";
-  //  var register = "http://192.168.1.107:3001/";
+    var main = "http://192.168.1.107:3001/";
+    // var main = "http://192.168.1.124:3001/";
     var api = main;
     var interfaces = {
       //资产搜索

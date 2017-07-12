@@ -16,10 +16,10 @@
     return component;
   }
 
-  assetInventoryCtrl.$inject = ['interfacesService', 'httpService', 'assetTableService', 'SweetAlert'];
+  assetInventoryCtrl.$inject = ['interfacesService', 'httpService', 'assetTableService', 'domFactory', 'SweetAlert'];
 
   /* @ngInject */
-  function assetInventoryCtrl(interfacesService, httpService, assetTableService, SweetAlert) {
+  function assetInventoryCtrl(interfacesService, httpService, assetTableService, domFactory, SweetAlert) {
     var self = this;
     self.data = {};
     self.theadInfo = {};
@@ -41,12 +41,13 @@
       departmentResponsibility: ''
     };
     self.modalInfo = {
-      showModal: false,
+      showCheckModal: false,
       showClearModal: false
     };
 
     // function
-    self.clean = clean
+    self.showModal = showModal
+    self.hideModal = hideModal
     self.searchPageNumberChange = searchPageNumberChange
     self.getInventory = getInventory
     self.clearInventoryAmount = clearInventoryAmount
@@ -54,10 +55,18 @@
 
     self.getInventory('', '', '', '', 1, 'getNotCompleteInventory')
 
-    // 清空并关闭弹出窗
-    function clean() {
-      self.modalInfo.showModal = false;
-      self.assetId = '';
+    // 显示模态框
+    function showModal(name){
+      self.modalInfo[name] = true;
+      domFactory.modalOpen();
+    }
+    // 隐藏模态框
+    function hideModal(name) {
+      self.modalInfo[name] = false;
+      if(name === 'showCheckModal'){
+        self.assetId = '';
+      }
+      domFactory.modalHide();
     }
     // 换页
     function searchPageNumberChange(newValue) {
@@ -95,12 +104,12 @@
       httpService.formPostRequest(interfacesService.clearInventoryAmount).then(function(response) {
         if (response.data.status == 0) {
           SweetAlert.swal("清空资产盘点成功", response.data.msg, "success");
-          self.modalInfo.showClearModal = false;
+          self.hideModal('showClearModal');
           self.getInventory('', '', '', '', 1, 'getNotCompleteInventory');
           self.searchInfo.inventoryType = 'getNotCompleteInventory';
         } else {
           SweetAlert.swal({title: "清空资产盘点失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-          self.modalInfo.showClearModal = false;
+          self.hideModal('showClearModal');
         }
       }).catch(function(response) {
         SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
@@ -114,12 +123,11 @@
       httpService.formPostRequest(interfacesService.assetsInventory, data).then(function(response) {
         if (response.data.status == 0) {
           SweetAlert.swal("盘点资产成功", response.data.msg, "success");
-          self.clean();
+          self.hideModal('showCheckModal');
           self.getInventory('', '', '', '', 1, 'getCompleteInventory');
           self.searchInfo.inventoryType = 'getCompleteInventory';
         } else {
           SweetAlert.swal({title: "盘点资产失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-          self.clean();
         }
       }).catch(function(response) {
         SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
