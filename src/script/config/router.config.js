@@ -28,9 +28,9 @@
       templateUrl: 'pages/main/main.template.html',
       resolve: {
         checkLogin: [
-          'authorizationService',
-          function(authorizationService) {
-            return authorizationService.checkLogin()
+          'authorizationFactory',
+          function(authorizationFactory) {
+            return authorizationFactory.checkLogin()
           }
         ]
       }
@@ -75,6 +75,10 @@
         parent: "main"
       }
     }
+    var wxAssetsInventory = {
+      url: '^/wxAssetsInventory',
+      template: '<wx-assets-inventory></wx-assets-inventory>'
+    }
     $stateProvider.state('sign', signState);
     $stateProvider.state('sign.login', loginState);
     $stateProvider.state('sign.register', registerState);
@@ -85,8 +89,10 @@
     $stateProvider.state('main.assetManagement.assetRecovery', assetRecovery);
     $stateProvider.state('main.assetManagement.assetsInventory', assetsInventory);
     $stateProvider.state('main.cdManagement', cdManagement);
+    $stateProvider.state('wxAssetsInventory', wxAssetsInventory);
     // $stateProvider.state('main.404', errorState);
     $urlRouterProvider.otherwise('assetSearch');
+    // $urlRouterProvider.otherwise('wxAssetsInventory');
 
   }
 })();

@@ -17,13 +17,13 @@
     '$state',
     '$timeout',
     '$interval',
-    'interfacesService',
-    'httpService',
+    'interfacesFactory',
+    'httpFactory',
     'SweetAlert'
   ];
 
   /* @ngInject */
-  function registerCtrl($state, $timeout, $interval, interfacesService, httpService, SweetAlert) {
+  function registerCtrl($state, $timeout, $interval, interfacesFactory, httpFactory, SweetAlert) {
     var self = this;
     var count = 60;
     self.time = '';
@@ -66,7 +66,7 @@
       var data = {
         phone: self.user.phone
       }
-      httpService.withCredentialsPostRequest(interfacesService.sendVerificationCode, data).then(function(response) {
+      httpFactory.withCredentialsPostRequest(interfacesFactory.sendVerificationCode, data).then(function(response) {
         if (response.data.status === 0) {
           self.countDown();
         } else {
@@ -85,7 +85,7 @@
         phone: user.phone,
         verificationCode: user.message
       }
-      httpService.withCredentialsPostRequest(interfacesService.register, data).then(function(response) {
+      httpFactory.withCredentialsPostRequest(interfacesFactory.register, data).then(function(response) {
         if (response.data.status === 0) {
           SweetAlert.swal({
             title: "注册成功",

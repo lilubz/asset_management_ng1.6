@@ -1,12 +1,12 @@
 (function() {
   'use strict';
 
-  angular.module('app').factory('assetTableService', factory);
+  angular.module('app').factory('assetTableFactory', factory);
 
-  factory.$inject = ['$rootScope', '$state', '$http', 'interfacesService'];
+  factory.$inject = [];
 
   /* @ngInject */
-  function factory($rootScope, $state, interfacesService) {
+  function factory() {
     var service = {
       tableInitailize: tableInitailize
     }

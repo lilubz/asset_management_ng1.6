@@ -13,14 +13,14 @@
     return component;
   }
 
-  appBreadcrumbCtrl.$inject = ['breadcrumbService', '$scope'];
+  appBreadcrumbCtrl.$inject = ['breadcrumbFactory', '$scope'];
 
   /* @ngInject */
-  function appBreadcrumbCtrl(breadcrumbService, $scope) {
+  function appBreadcrumbCtrl(breadcrumbFactory, $scope) {
     var self = this
-    self.breadcrumbArr = breadcrumbService.updateBreadcrumbs()
+    self.breadcrumbArr = breadcrumbFactory.updateBreadcrumbs()
     $scope.$on('$stateChangeSuccess', function() {
-      self.breadcrumbArr = breadcrumbService.updateBreadcrumbs()
+      self.breadcrumbArr = breadcrumbFactory.updateBreadcrumbs()
     })
   }
 })();

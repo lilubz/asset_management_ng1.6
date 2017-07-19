@@ -1,12 +1,12 @@
 (function() {
   'use strict';
 
-  angular.module('app').factory('authorizationService', factory);
+  angular.module('app').factory('authorizationFactory', factory);
 
-  factory.$inject = ['$rootScope', '$state', '$q', 'cacheService'];
+  factory.$inject = ['$rootScope', '$state', '$q', 'cacheFactory'];
 
   /* @ngInject */
-  function factory($rootScope, $state, $q, cacheService) {
+  function factory($rootScope, $state, $q, cacheFactory) {
     var identity = undefined;
     var service = {
       checkLogin: checkLogin,
@@ -18,7 +18,7 @@
     function checkLogin() {
     var deferred = $q.defer();
     var promise = deferred.promise;
-    identity = angular.fromJson(cacheService.get("identity"));
+    identity = angular.fromJson(cacheFactory.get("identity"));
     deferred.resolve(identity);
     return promise.then(function(id) {
       if (!id) {
@@ -29,7 +29,7 @@
   // 取得用户信息
   function getUserInfo(){
     var userInfo;
-    userInfo = angular.fromJson(cacheService.get("identity"));
+    userInfo = angular.fromJson(cacheFactory.get("identity"));
     if(userInfo){
       return userInfo
     }

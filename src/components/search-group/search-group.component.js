@@ -20,10 +20,10 @@
     return component;
   }
 
-  searchGroupCtrl.$inject = ['$timeout', 'interfacesService', 'httpService'];
+  searchGroupCtrl.$inject = ['$timeout', 'interfacesFactory', 'httpFactory'];
 
   /* @ngInject */
-  function searchGroupCtrl($timeout, interfacesService, httpService) {
+  function searchGroupCtrl($timeout, interfacesFactory, httpFactory) {
     var self = this;
     var autoSearchResult;
     var lastAutoSearchKeyWord;
@@ -44,8 +44,8 @@
     self.selectAutoCompleteItem = selectAutoCompleteItem;
     self.hide = hide;
 
-    self.getDeptAndCateArray(interfacesService.getDepartment, 'department');
-    self.getDeptAndCateArray(interfacesService.getCategory, 'category');
+    self.getDeptAndCateArray(interfacesFactory.getDepartment, 'department');
+    self.getDeptAndCateArray(interfacesFactory.getCategory, 'category');
 
     // 删除两边空格
     function trim(string) {
@@ -53,7 +53,7 @@
     }
     // 获取部门和资产类别信息
     function getDeptAndCateArray(url, param) {
-      httpService.getRequest(url).then(function(response) {
+      httpFactory.getRequest(url).then(function(response) {
         if (response.data.status == 0) {
           self[param + 'Array'] = response.data.data;
         }
@@ -72,7 +72,7 @@
       }
       if (keyWord && lastAutoSearchKeyWord !== keyWord) {
         lastAutoSearchKeyWord = keyWord;
-        httpService.getTableInfoRequest(interfacesService[self.searchUrl], self.searchInfo.searchType, keyWord, '', '', 1, 99).then(function(response) {
+        httpFactory.getTableInfoRequest(interfacesFactory[self.searchUrl], self.searchInfo.searchType, keyWord, '', '', 1, 99).then(function(response) {
           if (response.status == 200 && response.data.data.list) {
             autoSearchResult = response.data.data.list;
             self.createAutoCompleteArray();

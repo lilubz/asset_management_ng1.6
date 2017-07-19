@@ -17,13 +17,13 @@
     '$state',
     '$timeout',
     '$interval',
-    'interfacesService',
-    'httpService',
+    'interfacesFactory',
+    'httpFactory',
     'SweetAlert'
   ];
 
   /* @ngInject */
-  function resetPasswordCtrl($state, $timeout, $interval, interfacesService, httpService, SweetAlert) {
+  function resetPasswordCtrl($state, $timeout, $interval, interfacesFactory, httpFactory, SweetAlert) {
     var self = this;
     var count = 60;
     self.time = '';
@@ -65,7 +65,7 @@
       var data = {
         phone: self.user.phone
       }
-      httpService.withCredentialsPostRequest(interfacesService.sendResetVerificationCode, data).then(function(response) {
+      httpFactory.withCredentialsPostRequest(interfacesFactory.sendResetVerificationCode, data).then(function(response) {
         if (response.data.status === 0) {
           self.countDown();
         } else {
@@ -83,7 +83,7 @@
         phone: user.phone,
         verificationCode: user.message
       }
-      httpService.withCredentialsPostRequest(interfacesService.resetPassword, data).then(function(response) {
+      httpFactory.withCredentialsPostRequest(interfacesFactory.resetPassword, data).then(function(response) {
         if (response.data.status === 0) {
           SweetAlert.swal({
             title: "重置密码成功",

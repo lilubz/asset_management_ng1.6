@@ -16,10 +16,10 @@
     return component;
   }
 
-  assetInventoryCtrl.$inject = ['interfacesService', 'httpService', 'assetTableService', 'domFactory', 'SweetAlert'];
+  assetInventoryCtrl.$inject = ['interfacesFactory', 'httpFactory', 'assetTableFactory', 'domFactory', 'SweetAlert'];
 
   /* @ngInject */
-  function assetInventoryCtrl(interfacesService, httpService, assetTableService, domFactory, SweetAlert) {
+  function assetInventoryCtrl(interfacesFactory, httpFactory, assetTableFactory, domFactory, SweetAlert) {
     var self = this;
     self.data = {};
     self.theadInfo = {};
@@ -80,7 +80,7 @@
     function getInventory(searchType, searchKeyWord, assetCategory, departmentResponsibility, pageNum, url) {
       var lastSearchRecord = self.lastSearchRecord;
       self.loading = true;
-      httpService.getTableInfoRequest(interfacesService[url], searchType, searchKeyWord, assetCategory, departmentResponsibility, pageNum, self.searchInfo.searchPageSize).then(function(response) {
+      httpFactory.getTableInfoRequest(interfacesFactory[url], searchType, searchKeyWord, assetCategory, departmentResponsibility, pageNum, self.searchInfo.searchPageSize).then(function(response) {
         if (response.status == 200 && response.data.data.list) {
           lastSearchRecord.searchType = searchType;
           lastSearchRecord.searchKeyWord = searchKeyWord;
@@ -89,7 +89,7 @@
           self.data = response.data.data;
           if (self.searchInfo.searchPageNumber != response.data.data.pageNum && response.data.data.pageNum)
             self.searchInfo.searchPageNumber = response.data.data.pageNum;
-          self.theadInfo = assetTableService.tableInitailize(self.data);
+          self.theadInfo = assetTableFactory.tableInitailize(self.data);
         } else {
           self.data.list = [];
         }
@@ -101,7 +101,7 @@
     }
     // 清空资产盘点
     function clearInventoryAmount() {
-      httpService.formPostRequest(interfacesService.clearInventoryAmount).then(function(response) {
+      httpFactory.formPostRequest(interfacesFactory.clearInventoryAmount).then(function(response) {
         if (response.data.status == 0) {
           SweetAlert.swal("清空资产盘点成功", response.data.msg, "success");
           self.hideModal('showClearModal');
@@ -120,7 +120,7 @@
       var data = {
         assetId: self.assetId
       };
-      httpService.formPostRequest(interfacesService.assetsInventory, data).then(function(response) {
+      httpFactory.formPostRequest(interfacesFactory.assetsInventory, data).then(function(response) {
         if (response.data.status == 0) {
           SweetAlert.swal("盘点资产成功", response.data.msg, "success");
           self.hideModal('showCheckModal');

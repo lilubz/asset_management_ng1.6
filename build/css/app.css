@@ -250,6 +250,16 @@
   margin-bottom: 30px;
   width: 50%;
 }
+.wx-page {
+  padding: 10em 3em;
+}
+.wx-page input {
+  width: 100%;
+}
+.wx-page button {
+  width: 100%;
+  margin-top: 1em;
+}
 .bg-w {
   background-color: #fff;
 }

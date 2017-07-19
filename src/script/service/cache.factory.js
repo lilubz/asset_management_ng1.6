@@ -1,7 +1,7 @@
 (function() {
   'use strict';
 
-  angular.module('app').factory('cacheService', factory);
+  angular.module('app').factory('cacheFactory', factory);
 
   factory.$inject = ['$cookies'];
 

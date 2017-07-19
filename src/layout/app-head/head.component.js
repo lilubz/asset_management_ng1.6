@@ -13,21 +13,21 @@
     return component;
   }
 
-  appHeadCtrl.$inject = ['$state', 'interfacesService', 'httpService', 'cacheService', 'authorizationService'];
+  appHeadCtrl.$inject = ['$state', 'interfacesFactory', 'httpFactory', 'cacheFactory', 'authorizationFactory'];
 
   /* @ngInject */
-  function appHeadCtrl($state, interfacesService, httpService, cacheService, authorizationService) {
+  function appHeadCtrl($state, interfacesFactory, httpFactory, cacheFactory, authorizationFactory) {
     var self = this;
-    self.userInfo = authorizationService.getUserInfo();
+    self.userInfo = authorizationFactory.getUserInfo();
 
     // function
     self.logout = logout;
 
     // 登出
     function logout() {
-      httpService.getRequest(interfacesService.logout).then(function(response) {
+      httpFactory.getRequest(interfacesFactory.logout).then(function(response) {
         if (response.data.status === 0) {
-          cacheService.remove('identity');
+          cacheFactory.remove('identity');
           $state.go('sign.login');
         } else {
           SweetAlert.swal({title: "登出失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});

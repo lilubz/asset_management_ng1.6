@@ -13,10 +13,10 @@
     return component;
   }
 
-  assetRecoveryCtrl.$inject = ['interfacesService', 'httpService', 'assetTableService', 'domFactory', 'SweetAlert'];
+  assetRecoveryCtrl.$inject = ['interfacesFactory', 'httpFactory', 'assetTableFactory', 'domFactory', 'SweetAlert'];
 
   /* @ngInject */
-  function assetRecoveryCtrl(interfacesService, httpService, assetTableService, domFactory, SweetAlert) {
+  function assetRecoveryCtrl(interfacesFactory, httpFactory, assetTableFactory, domFactory, SweetAlert) {
     var self = this;
     self.data = {};
     self.theadInfo = {};
@@ -110,7 +110,7 @@
     function getAssetRecycle(searchType, searchKeyWord, assetCategory, departmentResponsibility, pageNum) {
       var lastSearchRecord = self.lastSearchRecord;
       self.loading = true;
-      httpService.getTableInfoRequest(interfacesService.getAssetRecycle, searchType, searchKeyWord, assetCategory, departmentResponsibility, pageNum, self.searchInfo.searchPageSize).then(function(response) {
+      httpFactory.getTableInfoRequest(interfacesFactory.getAssetRecycle, searchType, searchKeyWord, assetCategory, departmentResponsibility, pageNum, self.searchInfo.searchPageSize).then(function(response) {
         if (response.status == 200 && response.data.data.list) {
           lastSearchRecord.searchType = searchType;
           lastSearchRecord.searchKeyWord = searchKeyWord;
@@ -119,7 +119,7 @@
           self.data = response.data.data;
           if (self.searchInfo.searchPageNumber != response.data.data.pageNum && response.data.data.pageNum)
             self.searchInfo.searchPageNumber = response.data.data.pageNum;
-          self.theadInfo = assetTableService.tableInitailize(self.data);
+          self.theadInfo = assetTableFactory.tableInitailize(self.data);
           self.selectAll = false;
           self.isSelectedArray = [];
           for (var i = 0; i < self.data.list.length; i++) {
@@ -139,7 +139,7 @@
       var data = {
         assetId: id
       };
-      httpService.formPostRequest(interfacesService.notExistItemInAssetTable, data).then(function(response) {
+      httpFactory.formPostRequest(interfacesFactory.notExistItemInAssetTable, data).then(function(response) {
         if (response.data.status == 0) {
           self.recycleAssetItem(data);
         } else {
@@ -165,7 +165,7 @@
     // 恢复资产回收站中单条记录
     function recycleAssetItem(data) {
       var lastSearchRecord = self.lastSearchRecord;
-      httpService.formPostRequest(interfacesService.recycleAssetItem, data).then(function(response) {
+      httpFactory.formPostRequest(interfacesFactory.recycleAssetItem, data).then(function(response) {
         if (response.data.status == 0) {
           SweetAlert.swal("恢复成功", response.data.msg, "success");
           self.getAssetRecycle(lastSearchRecord.searchType, lastSearchRecord.searchKeyWord, lastSearchRecord.assetCategory, lastSearchRecord.departmentResponsibility, self.searchInfo.searchPageNumber);
@@ -182,7 +182,7 @@
       var data = {
         assetId: self.selectedItem['assetId']
       };
-      httpService.formPostRequest(interfacesService.deleteAssetRecycleItem, data).then(function(response) {
+      httpFactory.formPostRequest(interfacesFactory.deleteAssetRecycleItem, data).then(function(response) {
         if (response.data.status == 0) {
           SweetAlert.swal("删除成功", response.data.msg, "success");
           self.hideModal('showDeleteModal');
@@ -216,7 +216,7 @@
       var assetIdList = self.createDataList();
       if (!assetIdList)
         return;
-      httpService.JSONPostRequest(interfacesService.notExistMultiItemInAssetTable, assetIdList).then(function(response) {
+      httpFactory.JSONPostRequest(interfacesFactory.notExistMultiItemInAssetTable, assetIdList).then(function(response) {
         if (response.data.status == 0) {
           self.recycleAssetMultiItem(assetIdList);
         } else {
@@ -242,7 +242,7 @@
     // 恢复资产回收站中多条记录
     function recycleAssetMultiItem(assetIdList) {
       var lastSearchRecord = self.lastSearchRecord;
-      httpService.JSONPostRequest(interfacesService.recycleAssetMultiItem, assetIdList).then(function(response) {
+      httpFactory.JSONPostRequest(interfacesFactory.recycleAssetMultiItem, assetIdList).then(function(response) {
         if (response.data.status == 0) {
           SweetAlert.swal("恢复成功", response.data.msg, "success");
           self.getAssetRecycle(lastSearchRecord.searchType, lastSearchRecord.searchKeyWord, lastSearchRecord.assetCategory, lastSearchRecord.departmentResponsibility, self.searchInfo.searchPageNumber);
@@ -256,7 +256,7 @@
     // 删除资产回收站多条记录
     function deleteAssetRecycleMultiItem() {
       var lastSearchRecord = self.lastSearchRecord;
-      httpService.JSONPostRequest(interfacesService.deleteAssetRecycleMultiItem, self.selectedArray).then(function(response) {
+      httpFactory.JSONPostRequest(interfacesFactory.deleteAssetRecycleMultiItem, self.selectedArray).then(function(response) {
         if (response.data.status == 0) {
           SweetAlert.swal("删除成功", response.data.msg, "success");
           self.hideModal('showMultipleDeleteModal');

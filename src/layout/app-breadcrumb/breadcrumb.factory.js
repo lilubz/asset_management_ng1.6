@@ -2,7 +2,7 @@
 (function() {
   'use strict';
 
-  angular.module('app').factory('breadcrumbService', factory);
+  angular.module('app').factory('breadcrumbFactory', factory);
 
   factory.$inject = ['$rootScope', '$state', '$stateParams', '$interpolate'];
 

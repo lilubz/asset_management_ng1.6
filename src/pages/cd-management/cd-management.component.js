@@ -13,10 +13,10 @@
     return component;
   }
 
-  cdManagementCtrl.$inject = ['interfacesService', 'httpService', 'domFactory', 'SweetAlert'];
+  cdManagementCtrl.$inject = ['interfacesFactory', 'httpFactory', 'domFactory', 'SweetAlert'];
 
   /* @ngInject */
-  function cdManagementCtrl(interfacesService, httpService, domFactory, SweetAlert) {
+  function cdManagementCtrl(interfacesFactory, httpFactory, domFactory, SweetAlert) {
     var self = this
     self.departmentLoading = false;
     self.categoryLoading = false;
@@ -59,7 +59,7 @@
     // 获取
     function getDatas(param, Param) {
       self[param + 'Loading'] = true;
-      httpService.getRequest(interfacesService['get' + Param]).then(function(response) {
+      httpFactory.getRequest(interfacesFactory['get' + Param]).then(function(response) {
         if (response.data.status == 0) {
           self[param + 'Array'] = response.data.data;
         } else {
@@ -76,7 +76,7 @@
       var data = {
         'id': self.selectedItem['id']
       };
-      httpService.formPostRequest(interfacesService['delete' + Param], data).then(function(response) {
+      httpFactory.formPostRequest(interfacesFactory['delete' + Param], data).then(function(response) {
         if (response.data.status == 0) {
           SweetAlert.swal("删除成功", response.data.msg, "success");
           self.hideModal('show' + Param + 'Modal');
@@ -94,7 +94,7 @@
       var data = {
         'departmentName': self.addDepartmentInput
       };
-      httpService.formPostRequest(interfacesService.addDepartment, data).then(function(response) {
+      httpFactory.formPostRequest(interfacesFactory.addDepartment, data).then(function(response) {
         if (response.data.status == 0) {
           SweetAlert.swal("增加成功", response.data.msg, "success");
           self.getDatas('department', 'Department');
@@ -111,7 +111,7 @@
         'id': self.selectedItem['id'],
         'departmentName': self.selectedItem['departmentName']
       };
-      httpService.formPostRequest(interfacesService.updateDepartment, data).then(function(response) {
+      httpFactory.formPostRequest(interfacesFactory.updateDepartment, data).then(function(response) {
         if (response.data.status == 0) {
           SweetAlert.swal("编辑成功", response.data.msg, "success");
           self.hideModal('showDepartmentModal');
@@ -128,7 +128,7 @@
       var data = {
         'categoryName': self.addCategoryInput
       };
-      httpService.formPostRequest(interfacesService.addCategory, data).then(function(response) {
+      httpFactory.formPostRequest(interfacesFactory.addCategory, data).then(function(response) {
         if (response.data.status == 0) {
           SweetAlert.swal("增加成功", response.data.msg, "success");
           self.getDatas('category', 'Category');
@@ -145,7 +145,7 @@
         'id': self.selectedItem['id'],
         'categoryName': self.selectedItem['categoryName']
       };
-      httpService.formPostRequest(interfacesService.updateCategory, data).then(function(response) {
+      httpFactory.formPostRequest(interfacesFactory.updateCategory, data).then(function(response) {
         if (response.data.status == 0) {
           SweetAlert.swal("编辑成功", response.data.msg, "success");
           self.hideModal('showCategoryModal');

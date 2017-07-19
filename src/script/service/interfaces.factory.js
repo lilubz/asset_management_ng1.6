@@ -2,14 +2,16 @@
 (function() {
   'use strict';
 
-  angular.module('app').factory('interfacesService', factory);
+  angular.module('app').factory('interfacesFactory', factory);
 
   factory.$inject = [];
 
   /* @ngInject */
   function factory() {
-    var main = "http://192.168.1.107:3001/";
-    // var main = "http://192.168.1.124:3001/";
+    // var main = "http://192.168.1.107:3001/";
+    var main = "http://192.168.1.124:3001/";
+    // var main = "http://localhost:80/guotaotest/";
+    // var main = "http://47.92.121.244:80/guotaotest/";
     var api = main;
     var interfaces = {
       //资产搜索

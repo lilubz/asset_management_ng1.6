@@ -38,6 +38,61 @@
 (function() {
   'use strict';
 
+  angular.module('app').component('pagination', component());
+
+  /* @ngInject */
+  function component() {
+    var component = {
+      templateUrl: 'components/pagination/pagination.template.html',
+      controller: paginationCtrl,
+      bindings: {
+        data: '<',
+        searchInfo: '<',
+        searchPageSize: '<',
+        searchPageNumber: '<',
+        searchUrl: '<',
+        lastSearchRecord: '<',
+        searchPageNumberChange: '&',
+        searchAction: '&'
+      }
+    };
+
+    return component;
+  }
+
+  paginationCtrl.$inject = [];
+
+  /* @ngInject */
+  function paginationCtrl() {
+    var self = this;
+    self.$onChanges = function(changes) {
+      if (changes.searchPageSize && !changes.searchPageSize.isFirstChange()) {
+        self.searchAction({
+          searchType: self.lastSearchRecord.searchType,
+          searchKeyWord: self.lastSearchRecord.searchKeyWord,
+          assetCategory: self.lastSearchRecord.assetCategory,
+          departmentResponsibility: self.lastSearchRecord.departmentResponsibility,
+          pageNum: 1,
+          url: self.searchUrl
+        });
+      }
+      if (changes.searchPageNumber && !changes.searchPageNumber.isFirstChange()) {
+        self.searchAction({
+          searchType: self.lastSearchRecord.searchType,
+          searchKeyWord: self.lastSearchRecord.searchKeyWord,
+          assetCategory: self.lastSearchRecord.assetCategory,
+          departmentResponsibility: self.lastSearchRecord.departmentResponsibility,
+          pageNum: self.searchInfo.searchPageNumber,
+          url: self.searchUrl
+        });
+      }
+    }
+  }
+})();
+
+(function() {
+  'use strict';
+
   angular.module('app').component('assetTable', component());
 
   /* @ngInject */
@@ -72,12 +127,12 @@
 (function() {
   'use strict';
 
-  angular.module('app').factory('assetTableService', factory);
+  angular.module('app').factory('assetTableFactory', factory);
 
-  factory.$inject = ['$rootScope', '$state', '$http', 'interfacesService'];
+  factory.$inject = [];
 
   /* @ngInject */
-  function factory($rootScope, $state, interfacesService) {
+  function factory() {
     var service = {
       tableInitailize: tableInitailize
     }
@@ -145,61 +200,6 @@
 (function() {
   'use strict';
 
-  angular.module('app').component('pagination', component());
-
-  /* @ngInject */
-  function component() {
-    var component = {
-      templateUrl: 'components/pagination/pagination.template.html',
-      controller: paginationCtrl,
-      bindings: {
-        data: '<',
-        searchInfo: '<',
-        searchPageSize: '<',
-        searchPageNumber: '<',
-        searchUrl: '<',
-        lastSearchRecord: '<',
-        searchPageNumberChange: '&',
-        searchAction: '&'
-      }
-    };
-
-    return component;
-  }
-
-  paginationCtrl.$inject = [];
-
-  /* @ngInject */
-  function paginationCtrl() {
-    var self = this;
-    self.$onChanges = function(changes) {
-      if (changes.searchPageSize && !changes.searchPageSize.isFirstChange()) {
-        self.searchAction({
-          searchType: self.lastSearchRecord.searchType,
-          searchKeyWord: self.lastSearchRecord.searchKeyWord,
-          assetCategory: self.lastSearchRecord.assetCategory,
-          departmentResponsibility: self.lastSearchRecord.departmentResponsibility,
-          pageNum: 1,
-          url: self.searchUrl
-        });
-      }
-      if (changes.searchPageNumber && !changes.searchPageNumber.isFirstChange()) {
-        self.searchAction({
-          searchType: self.lastSearchRecord.searchType,
-          searchKeyWord: self.lastSearchRecord.searchKeyWord,
-          assetCategory: self.lastSearchRecord.assetCategory,
-          departmentResponsibility: self.lastSearchRecord.departmentResponsibility,
-          pageNum: self.searchInfo.searchPageNumber,
-          url: self.searchUrl
-        });
-      }
-    }
-  }
-})();
-
-(function() {
-  'use strict';
-
   angular.module('app').component('searchGroup', component());
 
   /* @ngInject */
@@ -219,10 +219,10 @@
     return component;
   }
 
-  searchGroupCtrl.$inject = ['$timeout', 'interfacesService', 'httpService'];
+  searchGroupCtrl.$inject = ['$timeout', 'interfacesFactory', 'httpFactory'];
 
   /* @ngInject */
-  function searchGroupCtrl($timeout, interfacesService, httpService) {
+  function searchGroupCtrl($timeout, interfacesFactory, httpFactory) {
     var self = this;
     var autoSearchResult;
     var lastAutoSearchKeyWord;
@@ -243,8 +243,8 @@
     self.selectAutoCompleteItem = selectAutoCompleteItem;
     self.hide = hide;
 
-    self.getDeptAndCateArray(interfacesService.getDepartment, 'department');
-    self.getDeptAndCateArray(interfacesService.getCategory, 'category');
+    self.getDeptAndCateArray(interfacesFactory.getDepartment, 'department');
+    self.getDeptAndCateArray(interfacesFactory.getCategory, 'category');
 
     // 删除两边空格
     function trim(string) {
@@ -252,7 +252,7 @@
     }
     // 获取部门和资产类别信息
     function getDeptAndCateArray(url, param) {
-      httpService.getRequest(url).then(function(response) {
+      httpFactory.getRequest(url).then(function(response) {
         if (response.data.status == 0) {
           self[param + 'Array'] = response.data.data;
         }
@@ -271,7 +271,7 @@
       }
       if (keyWord && lastAutoSearchKeyWord !== keyWord) {
         lastAutoSearchKeyWord = keyWord;
-        httpService.getTableInfoRequest(interfacesService[self.searchUrl], self.searchInfo.searchType, keyWord, '', '', 1, 99).then(function(response) {
+        httpFactory.getTableInfoRequest(interfacesFactory[self.searchUrl], self.searchInfo.searchType, keyWord, '', '', 1, 99).then(function(response) {
           if (response.status == 200 && response.data.data.list) {
             autoSearchResult = response.data.data.list;
             self.createAutoCompleteArray();
@@ -345,6 +345,47 @@
 (function() {
   'use strict';
 
+  angular.module('app').component('appHead', component());
+
+  /* @ngInject */
+  function component() {
+    var component = {
+      templateUrl: 'layout/app-head/head.template.html',
+      controller: appHeadCtrl
+    };
+
+    return component;
+  }
+
+  appHeadCtrl.$inject = ['$state', 'interfacesFactory', 'httpFactory', 'cacheFactory', 'authorizationFactory'];
+
+  /* @ngInject */
+  function appHeadCtrl($state, interfacesFactory, httpFactory, cacheFactory, authorizationFactory) {
+    var self = this;
+    self.userInfo = authorizationFactory.getUserInfo();
+
+    // function
+    self.logout = logout;
+
+    // 登出
+    function logout() {
+      httpFactory.getRequest(interfacesFactory.logout).then(function(response) {
+        if (response.data.status === 0) {
+          cacheFactory.remove('identity');
+          $state.go('sign.login');
+        } else {
+          SweetAlert.swal({title: "登出失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+        }
+      }).catch(function(response) {
+        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+      })
+    }
+  }
+})();
+
+(function() {
+  'use strict';
+
   angular.module('app').component('appBreadcrumb', component());
 
   /* @ngInject */
@@ -357,14 +398,14 @@
     return component;
   }
 
-  appBreadcrumbCtrl.$inject = ['breadcrumbService', '$scope'];
+  appBreadcrumbCtrl.$inject = ['breadcrumbFactory', '$scope'];
 
   /* @ngInject */
-  function appBreadcrumbCtrl(breadcrumbService, $scope) {
+  function appBreadcrumbCtrl(breadcrumbFactory, $scope) {
     var self = this
-    self.breadcrumbArr = breadcrumbService.updateBreadcrumbs()
+    self.breadcrumbArr = breadcrumbFactory.updateBreadcrumbs()
     $scope.$on('$stateChangeSuccess', function() {
-      self.breadcrumbArr = breadcrumbService.updateBreadcrumbs()
+      self.breadcrumbArr = breadcrumbFactory.updateBreadcrumbs()
     })
   }
 })();
@@ -373,7 +414,7 @@
 (function() {
   'use strict';
 
-  angular.module('app').factory('breadcrumbService', factory);
+  angular.module('app').factory('breadcrumbFactory', factory);
 
   factory.$inject = ['$rootScope', '$state', '$stateParams', '$interpolate'];
 
@@ -462,47 +503,6 @@
   }
 })();
 
-(function() {
-  'use strict';
-
-  angular.module('app').component('appHead', component());
-
-  /* @ngInject */
-  function component() {
-    var component = {
-      templateUrl: 'layout/app-head/head.template.html',
-      controller: appHeadCtrl
-    };
-
-    return component;
-  }
-
-  appHeadCtrl.$inject = ['$state', 'interfacesService', 'httpService', 'cacheService', 'authorizationService'];
-
-  /* @ngInject */
-  function appHeadCtrl($state, interfacesService, httpService, cacheService, authorizationService) {
-    var self = this;
-    self.userInfo = authorizationService.getUserInfo();
-
-    // function
-    self.logout = logout;
-
-    // 登出
-    function logout() {
-      httpService.getRequest(interfacesService.logout).then(function(response) {
-        if (response.data.status === 0) {
-          cacheService.remove('identity');
-          $state.go('sign.login');
-        } else {
-          SweetAlert.swal({title: "登出失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-        }
-      }).catch(function(response) {
-        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-      })
-    }
-  }
-})();
-
 
 (function() {
   'use strict';
@@ -528,934 +528,6 @@
     $scope.$on('$stateChangeSuccess', function() {
       self.currentState = $state.$current.name
     })
-  }
-})();
-
-(function() {
-  'use strict';
-
-  angular.module('app').component('assetInventory', component());
-
-  /* @ngInject */
-  function component() {
-    var component = {
-      templateUrl: 'pages/asset-inventory/asset-inventory.template.html',
-      controller: assetInventoryCtrl,
-      bindings: {
-        inventoryType: '<'
-      }
-    };
-
-    return component;
-  }
-
-  assetInventoryCtrl.$inject = ['interfacesService', 'httpService', 'assetTableService', 'domFactory', 'SweetAlert'];
-
-  /* @ngInject */
-  function assetInventoryCtrl(interfacesService, httpService, assetTableService, domFactory, SweetAlert) {
-    var self = this;
-    self.data = {};
-    self.theadInfo = {};
-    self.loading = false;
-    self.assetId = '';
-    self.searchInfo = {
-      searchType: '',
-      searchKeyWord: '',
-      assetCategory: '',
-      departmentResponsibility: '',
-      searchPageNumber: 1,
-      searchPageSize: "10",
-      inventoryType: 'getNotCompleteInventory'
-    };
-    self.lastSearchRecord = {
-      searchType: '',
-      searchKeyWord: '',
-      assetCategory: '',
-      departmentResponsibility: ''
-    };
-    self.modalInfo = {
-      showCheckModal: false,
-      showClearModal: false
-    };
-
-    // function
-    self.showModal = showModal
-    self.hideModal = hideModal
-    self.searchPageNumberChange = searchPageNumberChange
-    self.getInventory = getInventory
-    self.clearInventoryAmount = clearInventoryAmount
-    self.assetInventory = assetInventory
-
-    self.getInventory('', '', '', '', 1, 'getNotCompleteInventory')
-
-    // 显示模态框
-    function showModal(name){
-      self.modalInfo[name] = true;
-      domFactory.modalOpen();
-    }
-    // 隐藏模态框
-    function hideModal(name) {
-      self.modalInfo[name] = false;
-      if(name === 'showCheckModal'){
-        self.assetId = '';
-      }
-      domFactory.modalHide();
-    }
-    // 换页
-    function searchPageNumberChange(newValue) {
-      if (newValue < 1)
-        return;
-      if (newValue > self.data.pages)
-        return;
-      self.searchInfo.searchPageNumber = newValue;
-    }
-    // 获取已完成/未完成资产盘点的资产信息列表
-    function getInventory(searchType, searchKeyWord, assetCategory, departmentResponsibility, pageNum, url) {
-      var lastSearchRecord = self.lastSearchRecord;
-      self.loading = true;
-      httpService.getTableInfoRequest(interfacesService[url], searchType, searchKeyWord, assetCategory, departmentResponsibility, pageNum, self.searchInfo.searchPageSize).then(function(response) {
-        if (response.status == 200 && response.data.data.list) {
-          lastSearchRecord.searchType = searchType;
-          lastSearchRecord.searchKeyWord = searchKeyWord;
-          lastSearchRecord.assetCategory = assetCategory;
-          lastSearchRecord.departmentResponsibility = departmentResponsibility;
-          self.data = response.data.data;
-          if (self.searchInfo.searchPageNumber != response.data.data.pageNum && response.data.data.pageNum)
-            self.searchInfo.searchPageNumber = response.data.data.pageNum;
-          self.theadInfo = assetTableService.tableInitailize(self.data);
-        } else {
-          self.data.list = [];
-        }
-        self.loading = false;
-      }).catch(function(response) {
-        self.loading = false;
-        SweetAlert.swal({title: "服务器出错了", text: response.statusText, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-      })
-    }
-    // 清空资产盘点
-    function clearInventoryAmount() {
-      httpService.formPostRequest(interfacesService.clearInventoryAmount).then(function(response) {
-        if (response.data.status == 0) {
-          SweetAlert.swal("清空资产盘点成功", response.data.msg, "success");
-          self.hideModal('showClearModal');
-          self.getInventory('', '', '', '', 1, 'getNotCompleteInventory');
-          self.searchInfo.inventoryType = 'getNotCompleteInventory';
-        } else {
-          SweetAlert.swal({title: "清空资产盘点失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-          self.hideModal('showClearModal');
-        }
-      }).catch(function(response) {
-        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-      })
-    }
-    // 盘点资产
-    function assetInventory() {
-      var data = {
-        assetId: self.assetId
-      };
-      httpService.formPostRequest(interfacesService.assetsInventory, data).then(function(response) {
-        if (response.data.status == 0) {
-          SweetAlert.swal("盘点资产成功", response.data.msg, "success");
-          self.hideModal('showCheckModal');
-          self.getInventory('', '', '', '', 1, 'getCompleteInventory');
-          self.searchInfo.inventoryType = 'getCompleteInventory';
-        } else {
-          SweetAlert.swal({title: "盘点资产失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-        }
-      }).catch(function(response) {
-        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-      })
-    }
-  }
-})();
-
-(function() {
-  'use strict';
-
-  angular.module('app').component('assetSearch', component());
-
-  /* @ngInject */
-  function component() {
-    var component = {
-      templateUrl: 'pages/asset-search/asset-search.template.html',
-      controller: assetSearchCtrl
-    };
-
-    return component;
-  }
-
-  assetSearchCtrl.$inject = [
-    'interfacesService',
-    'httpService',
-    'assetTableService',
-    'domFactory',
-    'FileUploader',
-    'SweetAlert'
-  ];
-
-  /* @ngInject */
-  function assetSearchCtrl(interfacesService, httpService, assetTableService, domFactory, FileUploader, SweetAlert) {
-    var self = this;
-    self.data = {};
-    self.theadInfo = {};
-    self.loading = false;
-    self.selectedItem = {};
-    self.searchInfo = {
-      searchType: '',
-      searchKeyWord: '',
-      assetCategory: '',
-      departmentResponsibility: '',
-      searchPageNumber: 1,
-      searchPageSize: "10"
-    };
-    self.lastSearchRecord = {
-      searchType: '',
-      searchKeyWord: '',
-      assetCategory: '',
-      departmentResponsibility: ''
-    };
-    self.modalInfo = {
-      showAddModal: false,
-      showEditModal: false,
-      showDeleteModal: false,
-      showImportModal: false,
-      showExportModal: false,
-      importModal: {
-        currentStep: 1
-      },
-      modal: {
-        assetId: '',
-        assetName: '',
-        assetCategory: '',
-        brandSpecification: '',
-        unitMeasurement: '',
-        bookAmount: '',
-        inventoryAmount: '',
-        storageLocation: '',
-        departmentResponsibility: '',
-        personInCharge: '',
-        statusUsage: ''
-      }
-    };
-    // 新建angular-file-upload实例
-    self.uploader = new FileUploader({
-      url: interfacesService.importUrl, method: 'POST',
-      // removeAfterUpload: true,
-      // queueLimit: 1,
-    });
-
-    // function
-    self.showModal = showModal;
-    self.showEditModal = showEditModal;
-    self.showDeleteModal = showDeleteModal;
-    self.hideModal = hideModal;
-    self.clean = clean;
-    self.searchPageNumberChange = searchPageNumberChange;
-    self.searchItem = searchItem;
-    self.addItem = addItem;
-    self.editItem = editItem;
-    self.deleteItem = deleteItem;
-    self.printQRcode = printQRcode;
-
-    // 导入资产信息相关操作
-    self.importModalInitialize = importModalInitialize;
-    self.stepChange = stepChange;
-    self.importAssetList = importAssetList;
-    self.exportAssetList = exportAssetList;
-    // angular-file-upload钩子函数
-    self.uploader.onAfterAddingFile = onAfterAddingFile;
-    self.uploader.onSuccessItem = onSuccessItem;
-
-    self.searchItem('', '', '', '', 1);
-
-    // 显示模态框
-    function showModal(name){
-      self.modalInfo[name] = true;
-      domFactory.modalOpen();
-    }
-
-    // 显示编辑模态框
-    function showEditModal(item) {
-      var modalInfo = self.modalInfo;
-      modalInfo.showEditModal = true;
-      domFactory.modalOpen();
-      angular.forEach(modalInfo.modal, function(value, key) {
-        modalInfo.modal[key] = item[key];
-      });
-    }
-    // 显示删除模态框
-    function showDeleteModal(item) {
-      self.modalInfo.showDeleteModal = true;
-      domFactory.modalOpen();
-      self.selectedItem = item;
-    }
-    // 隐藏模态框
-    function hideModal(name) {
-      self.modalInfo[name] = false;
-      if(name === 'showAddModal' || name === 'showEditModal'){
-        self.clean();
-      }
-      domFactory.modalHide();
-    }
-    // 清理modal信息
-    function clean() {
-      var modalInfo = self.modalInfo;
-      angular.forEach(modalInfo.modal, function(value, key) {
-        modalInfo.modal[key] = '';
-      });
-    }
-    // 换页
-    function searchPageNumberChange(newValue) {
-      if (newValue < 1)
-        return;
-      if (newValue > self.data.pages)
-        return;
-      self.searchInfo.searchPageNumber = newValue;
-    }
-    // 查询信息
-    function searchItem(searchType, searchKeyWord, assetCategory, departmentResponsibility, pageNum) {
-      var lastSearchRecord = self.lastSearchRecord;
-      self.loading = true;
-      httpService.getTableInfoRequest(interfacesService.getAssetUrl, searchType, searchKeyWord, assetCategory, departmentResponsibility, pageNum, self.searchInfo.searchPageSize).then(function(response) {
-        if (response.status == 200 && response.data.data.list) {
-          lastSearchRecord.searchType = searchType;
-          lastSearchRecord.searchKeyWord = searchKeyWord;
-          lastSearchRecord.assetCategory = assetCategory;
-          lastSearchRecord.departmentResponsibility = departmentResponsibility;
-          self.data = response.data.data;
-          if (self.searchInfo.searchPageNumber != response.data.data.pageNum && response.data.data.pageNum) {
-            self.searchInfo.searchPageNumber = response.data.data.pageNum;
-          }
-          self.theadInfo = assetTableService.tableInitailize(self.data);
-        } else {
-          self.data.list = [];
-        }
-        self.loading = false;
-      }).catch(function(response) {
-        self.loading = false;
-        SweetAlert.swal({title: "服务器出错了", text: response.statusText, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-      });
-    }
-    // 添加信息
-    function addItem() {
-      var lastSearchRecord = self.lastSearchRecord;
-      var modalInfo = self.modalInfo;
-      if(!modalInfo.modal.bookAmount || modalInfo.modal.bookAmount<0){
-        modalInfo.modal.bookAmount = 0;
-      }
-      if(!modalInfo.modal.inventoryAmount || modalInfo.modal.inventoryAmount<0){
-        modalInfo.modal.inventoryAmount = 0;
-      }
-      httpService.formPostRequest(interfacesService.addUrl, self.modalInfo.modal).then(function(response) {
-        if (response.data.status == 0) {
-          SweetAlert.swal("添加成功", response.data.msg, "success");
-          self.hideModal('showAddModal');
-          self.searchItem(lastSearchRecord.searchType, lastSearchRecord.searchKeyWord, lastSearchRecord.assetCategory, lastSearchRecord.departmentResponsibility, 1);
-        } else {
-          SweetAlert.swal({title: "添加失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-        }
-      }).catch(function(response) {
-        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-      });
-    }
-    // 编辑信息
-    function editItem() {
-      var lastSearchRecord = self.lastSearchRecord;
-      var modalInfo = self.modalInfo;
-      if(!modalInfo.modal.bookAmount || modalInfo.modal.bookAmount<0){
-        modalInfo.modal.bookAmount = 0;
-      }
-      if(!modalInfo.modal.inventoryAmount || modalInfo.modal.inventoryAmount<0){
-        modalInfo.modal.inventoryAmount = 0;
-      }
-      httpService.formPostRequest(interfacesService.updateUrl, self.modalInfo.modal).then(function(response) {
-        if (response.data.status == 0) {
-          SweetAlert.swal("编辑成功", response.data.msg, "success");
-          self.hideModal('showEditModal');
-          self.searchItem(lastSearchRecord.searchType, lastSearchRecord.searchKeyWord, lastSearchRecord.assetCategory, lastSearchRecord.departmentResponsibility, self.searchInfo.searchPageNumber);
-        } else {
-          SweetAlert.swal({title: "编辑失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-        }
-      }).catch(function(response) {
-        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-      });
-    }
-    // 删除信息
-    function deleteItem() {
-      var lastSearchRecord = self.lastSearchRecord;
-      var data = {
-        'assetId': self.selectedItem['assetId']
-      };
-      self.hideModal('showDeleteModal');
-      self.selectedItem = {};
-      httpService.formPostRequest(interfacesService.deleteUrl, data).then(function(response) {
-        if (response.data.status == 0) {
-          SweetAlert.swal("删除成功", response.data.msg, "success");
-          self.searchItem(lastSearchRecord.searchType, lastSearchRecord.searchKeyWord, lastSearchRecord.assetCategory, lastSearchRecord.departmentResponsibility, self.searchInfo.searchPageNumber);
-        } else {
-          SweetAlert.swal({title: "删除失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-        }
-      }).catch(function(response) {
-        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-      });
-    }
-    // 打印资产二维码
-    function printQRcode(assetId, assetName) {
-      var data = {
-        'assetId': assetId,
-        'assetName': assetName
-      };
-      httpService.formPostRequest(interfacesService.printQRcode, data).then(function(response) {
-        if (response.data.status == 0) {
-          SweetAlert.swal("打印成功", response.data.msg, "success");
-        } else {
-          SweetAlert.swal({title: "打印失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-        }
-      }).catch(function(response) {
-        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-      });
-    }
-    // 初始化导入弹出框
-    function importModalInitialize() {
-      self.hideModal('showImportModal');
-      self.modalInfo.importModal.currentStep = 1;
-      if (self.uploader.queue.length)
-        self.uploader.clearQueue();
-      }
-    // 导入弹出框下一步、上一步切换
-    function stepChange(count) {
-      var modalInfo = self.modalInfo;
-      if (modalInfo.importModal.currentStep === 1 && count === -1)
-        return;
-      if (modalInfo.importModal.currentStep === 3 && count === 1)
-        return;
-      modalInfo.importModal.currentStep += count;
-    }
-    // 上传导入
-    function importAssetList() {
-      var uploader = self.uploader;
-      var len = uploader.queue.length;
-      var array = uploader.queue[0].file.name.split('.');
-      var fileType = array[array.length - 1];
-      if ((fileType !== 'xls' && fileType !== 'xlsx') || len !== 1) {
-        SweetAlert.swal({title: "出错了", text: '只能上传一个以xls或xlsx结尾的文件', type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-        return;
-      } else {
-        uploader.queue[0].upload();
-      }
-    }
-    // 下载导出
-    function exportAssetList() {
-      var lastSearchRecord = self.lastSearchRecord,
-        searchType = '',
-        searchKeyWord = '',
-        assetCategory = '',
-        departmentResponsibility = '',
-        str = '?';
-      if (lastSearchRecord.searchType && lastSearchRecord.searchKeyWord) {
-        searchType = lastSearchRecord.searchType;
-        searchKeyWord = lastSearchRecord.searchKeyWord;
-        str += (searchType + '=' + searchKeyWord + '&');
-      }
-      if (lastSearchRecord.assetCategory) {
-        assetCategory = lastSearchRecord.assetCategory;
-        str += ('assetCategory=' + assetCategory + '&');
-      }
-      if (lastSearchRecord.departmentResponsibility) {
-        departmentResponsibility = lastSearchRecord.departmentResponsibility;
-        str += ('departmentResponsibility=' + departmentResponsibility + '&');
-      }
-
-      self.exportUrl = interfacesService.exportUrl + str;
-      self.showModal('showExportModal');
-    }
-    // angular-file-upload钩子函数，添加上传文件后触发
-    function onAfterAddingFile(fileItem) {
-      var uploader = self.uploader;
-      var len = uploader.queue.length;
-      var file = uploader.queue[len - 1];
-      if (len > 1) {
-        uploader.clearQueue();
-        uploader.queue.push(file);
-      }
-    }
-    // angular-file-upload钩子函数，上传成功后触发
-    function onSuccessItem(fileItem, response, status, headers) {
-      if (response.status == 0) {
-        var data = response.data;
-        var read = data.split('excel中读取')[1].split('条记录')[0];
-        var write = data.split('写入数据库')[1].split('条记录')[0];
-        if (read == 0) {
-          SweetAlert.swal({title: "上传失败", text: '上传成功0条，上传表格格式/内容错误', type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-          self.importModalInitialize();
-          return;
-        }
-        if (read != 0 && write == 0) {
-          SweetAlert.swal({title: "上传失败", text: '上传成功0条，可能由于资产ID已经存在', type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-          self.importModalInitialize();
-          return;
-        }
-        if (read != write) {
-          SweetAlert.swal({
-            title: "部分上传成功",
-            text: '上传成功' + write + '条，失败' + (read - write) + '条，可能由于资产ID已经存在',
-            type: "warning",
-            confirmButtonColor: "#F8BB86",
-            confirmButtonText: "确定"
-          });
-          self.importModalInitialize();
-          self.searchItem('', '', '', '', 1);
-          return;
-        }
-        if (read == write && write > 0) {
-          SweetAlert.swal("上传成功", '批量添加资产信息成功', "success");
-          self.importModalInitialize();
-          self.searchItem('', '', '', '', 1);
-          return;
-        }
-      } else {
-        SweetAlert.swal({title: "上传失败", text: response.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-        self.importModalInitialize();
-      }
-    }
-
-  }
-})();
-
-(function() {
-  'use strict';
-
-  angular.module('app').component('assetRecovery', component());
-
-  /* @ngInject */
-  function component() {
-    var component = {
-      templateUrl: 'pages/asset-recovery/asset-recovery.template.html',
-      controller: assetRecoveryCtrl
-    };
-
-    return component;
-  }
-
-  assetRecoveryCtrl.$inject = ['interfacesService', 'httpService', 'assetTableService', 'domFactory', 'SweetAlert'];
-
-  /* @ngInject */
-  function assetRecoveryCtrl(interfacesService, httpService, assetTableService, domFactory, SweetAlert) {
-    var self = this;
-    self.data = {};
-    self.theadInfo = {};
-    self.loading = false;
-    self.selectAll = false;
-    self.selectedItem = {};
-    self.selectedArray = [];
-    self.isSelectedArray = [];
-    self.searchInfo = {
-      searchType: '',
-      searchKeyWord: '',
-      assetCategory: '',
-      departmentResponsibility: '',
-      searchPageNumber: 1,
-      searchPageSize: "10"
-    };
-    self.lastSearchRecord = {
-      searchType: '',
-      searchKeyWord: '',
-      assetCategory: '',
-      departmentResponsibility: ''
-    };
-    self.modalInfo = {
-      showDeleteModal: false,
-      showMultipleDeleteModal: false
-    };
-
-    // function
-    self.searchPageNumberChange = searchPageNumberChange
-    self.showModal = showModal
-    self.hideModal = hideModal
-    self.selectAllCheckBox = selectAllCheckBox
-    self.selectSingleCheckBox = selectSingleCheckBox
-    self.getAssetRecycle = getAssetRecycle
-    self.notExistItemInAssetTable = notExistItemInAssetTable
-    self.recycleAssetItem = recycleAssetItem
-    self.deleteAssetRecycleItem = deleteAssetRecycleItem
-    self.createDataList = createDataList
-    self.notExistMultiItemInAssetTable = notExistMultiItemInAssetTable
-    self.recycleAssetMultiItem = recycleAssetMultiItem
-    self.deleteAssetRecycleMultiItem = deleteAssetRecycleMultiItem
-
-    self.getAssetRecycle('', '', '', '', 1);
-
-    // 换页
-    function searchPageNumberChange(newValue) {
-      if (newValue < 1)
-        return;
-      if (newValue > self.data.pages)
-        return;
-      self.searchInfo.searchPageNumber = newValue;
-    }
-    // 显示模态框
-    function showModal(name, item) {
-      if(name === 'showDeleteModal'){
-        self.modalInfo.showDeleteModal = true;
-        domFactory.modalOpen();
-        self.selectedItem = item;
-      }
-      if(name === 'showMultipleDeleteModal'){
-        self.selectedArray = self.createDataList();
-        if (!self.selectedArray.length)
-          return;
-        self.modalInfo.showMultipleDeleteModal = true;
-        domFactory.modalOpen();
-      }
-    }
-    // 隐藏模态框
-    function hideModal(name) {
-      self.modalInfo[name] = false;
-      domFactory.modalHide();
-    }
-    // 全选/全不选
-    function selectAllCheckBox() {
-      var selectAll = self.selectAll;
-      angular.forEach(self.isSelectedArray, function(data, index, array) {
-        array[index] = selectAll;
-      });
-    }
-    // 选择列表中checkbox时触发
-    function selectSingleCheckBox() {
-      if (self.selectAll === true)
-        self.selectAll = false;
-      if (self.selectAll === false) {
-        self.selectAll = (self.isSelectedArray.indexOf(false) === -1)
-          ? true
-          : false;
-      }
-    }
-    // 获取资产回收站列表
-    function getAssetRecycle(searchType, searchKeyWord, assetCategory, departmentResponsibility, pageNum) {
-      var lastSearchRecord = self.lastSearchRecord;
-      self.loading = true;
-      httpService.getTableInfoRequest(interfacesService.getAssetRecycle, searchType, searchKeyWord, assetCategory, departmentResponsibility, pageNum, self.searchInfo.searchPageSize).then(function(response) {
-        if (response.status == 200 && response.data.data.list) {
-          lastSearchRecord.searchType = searchType;
-          lastSearchRecord.searchKeyWord = searchKeyWord;
-          lastSearchRecord.assetCategory = assetCategory;
-          lastSearchRecord.departmentResponsibility = departmentResponsibility;
-          self.data = response.data.data;
-          if (self.searchInfo.searchPageNumber != response.data.data.pageNum && response.data.data.pageNum)
-            self.searchInfo.searchPageNumber = response.data.data.pageNum;
-          self.theadInfo = assetTableService.tableInitailize(self.data);
-          self.selectAll = false;
-          self.isSelectedArray = [];
-          for (var i = 0; i < self.data.list.length; i++) {
-            self.isSelectedArray.push(false);
-          };
-        } else {
-          self.data.list = [];
-        }
-        self.loading = false;
-      }).catch(function(response) {
-        self.loading = false;
-        SweetAlert.swal({title: "服务器出错了", text: response.statusText, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-      })
-    }
-    // 查重资产表中是否存在单条资产记录
-    function notExistItemInAssetTable(id) {
-      var data = {
-        assetId: id
-      };
-      httpService.formPostRequest(interfacesService.notExistItemInAssetTable, data).then(function(response) {
-        if (response.data.status == 0) {
-          self.recycleAssetItem(data);
-        } else {
-          SweetAlert.swal({
-            title: '如果恢复，则现资产表中相同资产编号的资产将被覆盖',
-            text: response.data.msg,
-            type: "warning",
-            confirmButtonColor: "#F8BB86",
-            confirmButtonText: "确定恢复",
-            showCancelButton: true,
-            closeOnConfirm: false,
-            closeOnCancel: true
-          }, function(isConfirm) {
-            if (isConfirm)
-              self.recycleAssetItem(data);
-            }
-          );
-        }
-      }).catch(function(response) {
-        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-      })
-    }
-    // 恢复资产回收站中单条记录
-    function recycleAssetItem(data) {
-      var lastSearchRecord = self.lastSearchRecord;
-      httpService.formPostRequest(interfacesService.recycleAssetItem, data).then(function(response) {
-        if (response.data.status == 0) {
-          SweetAlert.swal("恢复成功", response.data.msg, "success");
-          self.getAssetRecycle(lastSearchRecord.searchType, lastSearchRecord.searchKeyWord, lastSearchRecord.assetCategory, lastSearchRecord.departmentResponsibility, self.searchInfo.searchPageNumber);
-        } else {
-          SweetAlert.swal({title: "恢复失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-        }
-      }).catch(function(response) {
-        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-      });
-    }
-    // 删除资产回收站单条记录
-    function deleteAssetRecycleItem() {
-      var lastSearchRecord = self.lastSearchRecord;
-      var data = {
-        assetId: self.selectedItem['assetId']
-      };
-      httpService.formPostRequest(interfacesService.deleteAssetRecycleItem, data).then(function(response) {
-        if (response.data.status == 0) {
-          SweetAlert.swal("删除成功", response.data.msg, "success");
-          self.hideModal('showDeleteModal');
-          self.getAssetRecycle(lastSearchRecord.searchType, lastSearchRecord.searchKeyWord, lastSearchRecord.assetCategory, lastSearchRecord.departmentResponsibility, self.searchInfo.searchPageNumber);
-        } else {
-          SweetAlert.swal({title: "删除失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-          self.hideModal('showDeleteModal');
-        }
-      }).catch(function(response) {
-        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-      });
-    }
-    // 根据已选内容生成assetIdList
-    function createDataList() {
-      var assetIdList = [];
-      var dataList = self.data.list;
-      var isSelectedArray = self.isSelectedArray;
-      if (isSelectedArray.indexOf(true) == -1) {
-        SweetAlert.swal({title: "恢复失败", text: "未选择任何资产记录", type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-        return;
-      }
-      angular.forEach(self.isSelectedArray, function(data, index, array) {
-        if (data === true) {
-          assetIdList.push(dataList[index].assetId)
-        };
-      });
-      return assetIdList;
-    }
-    // 查重资产表中是否存在多条资产记录
-    function notExistMultiItemInAssetTable() {
-      var assetIdList = self.createDataList();
-      if (!assetIdList)
-        return;
-      httpService.JSONPostRequest(interfacesService.notExistMultiItemInAssetTable, assetIdList).then(function(response) {
-        if (response.data.status == 0) {
-          self.recycleAssetMultiItem(assetIdList);
-        } else {
-          SweetAlert.swal({
-            title: '如果恢复，则下列资产编号的资产信息将被覆盖',
-            text: response.data.data,
-            type: "warning",
-            confirmButtonColor: "#F8BB86",
-            confirmButtonText: "确定恢复",
-            showCancelButton: true,
-            closeOnConfirm: false,
-            closeOnCancel: true
-          }, function(isConfirm) {
-            if (isConfirm)
-              self.recycleAssetMultiItem(assetIdList);
-            }
-          );
-        }
-      }).catch(function(response) {
-        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-      });
-    }
-    // 恢复资产回收站中多条记录
-    function recycleAssetMultiItem(assetIdList) {
-      var lastSearchRecord = self.lastSearchRecord;
-      httpService.JSONPostRequest(interfacesService.recycleAssetMultiItem, assetIdList).then(function(response) {
-        if (response.data.status == 0) {
-          SweetAlert.swal("恢复成功", response.data.msg, "success");
-          self.getAssetRecycle(lastSearchRecord.searchType, lastSearchRecord.searchKeyWord, lastSearchRecord.assetCategory, lastSearchRecord.departmentResponsibility, self.searchInfo.searchPageNumber);
-        } else {
-          SweetAlert.swal({title: "恢复失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-        }
-      }).catch(function(response) {
-        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-      });
-    }
-    // 删除资产回收站多条记录
-    function deleteAssetRecycleMultiItem() {
-      var lastSearchRecord = self.lastSearchRecord;
-      httpService.JSONPostRequest(interfacesService.deleteAssetRecycleMultiItem, self.selectedArray).then(function(response) {
-        if (response.data.status == 0) {
-          SweetAlert.swal("删除成功", response.data.msg, "success");
-          self.hideModal('showMultipleDeleteModal');
-          self.getAssetRecycle(lastSearchRecord.searchType, lastSearchRecord.searchKeyWord, lastSearchRecord.assetCategory, lastSearchRecord.departmentResponsibility, self.searchInfo.searchPageNumber);
-        } else {
-          SweetAlert.swal({title: "删除失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-          self.hideModal('showMultipleDeleteModal');
-        }
-      }).catch(function(response) {
-        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-      });
-    }
-  }
-})();
-
-(function() {
-  'use strict';
-
-  angular.module('app').component('cdManagement', component());
-
-  /* @ngInject */
-  function component() {
-    var component = {
-      templateUrl: 'pages/cd-management/cd-management.template.html',
-      controller: cdManagementCtrl
-    };
-
-    return component;
-  }
-
-  cdManagementCtrl.$inject = ['interfacesService', 'httpService', 'domFactory', 'SweetAlert'];
-
-  /* @ngInject */
-  function cdManagementCtrl(interfacesService, httpService, domFactory, SweetAlert) {
-    var self = this
-    self.departmentLoading = false;
-    self.categoryLoading = false;
-    self.departmentArray = [];
-    self.categoryArray = [];
-    self.deptShowPencilLable = 999;
-    self.catShowPencilLable = 999;
-    self.addDepartmentInput = '';
-    self.addCategoryInput = '';
-    self.selectedItem = {};
-    self.modalInfo = {
-      showDepartmentModal: false,
-      showCategoryModal: false
-    };
-
-    // function
-    self.showModal = showModal
-    self.hideModal = hideModal
-    self.getDatas = getDatas
-    self.deleteDatas = deleteDatas
-    self.addDepartment = addDepartment
-    self.updateDepartment = updateDepartment
-    self.addCategory = addCategory
-    self.updateCategory = updateCategory
-
-    self.getDatas('department', 'Department')
-    self.getDatas('category', 'Category')
-
-    // 显示模态框
-    function showModal(name, item) {
-      self.modalInfo[name] = true;
-      domFactory.modalOpen();
-      self.selectedItem = item;
-    };
-    // 隐藏模态框
-    function hideModal(name) {
-      self.modalInfo[name] = false;
-      domFactory.modalHide();
-    }
-    // 获取
-    function getDatas(param, Param) {
-      self[param + 'Loading'] = true;
-      httpService.getRequest(interfacesService['get' + Param]).then(function(response) {
-        if (response.data.status == 0) {
-          self[param + 'Array'] = response.data.data;
-        } else {
-          self[param + 'Array'] = [];
-        }
-        self[param + 'Loading'] = false;
-      }).catch(function(response) {
-        self[param + 'Loading'] = false;
-        SweetAlert.swal({title: "服务器出错了", text: response.statusText, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-      });
-    };
-    // 删除
-    function deleteDatas(param, Param) {
-      var data = {
-        'id': self.selectedItem['id']
-      };
-      httpService.formPostRequest(interfacesService['delete' + Param], data).then(function(response) {
-        if (response.data.status == 0) {
-          SweetAlert.swal("删除成功", response.data.msg, "success");
-          self.hideModal('show' + Param + 'Modal');
-          self.getDatas(param, Param);
-        } else {
-          SweetAlert.swal({title: "删除失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-          self.hideModal('show' + Param + 'Modal');
-        }
-      }).catch(function(response) {
-        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-      });
-    };
-    // 增加
-    function addDepartment() {
-      var data = {
-        'departmentName': self.addDepartmentInput
-      };
-      httpService.formPostRequest(interfacesService.addDepartment, data).then(function(response) {
-        if (response.data.status == 0) {
-          SweetAlert.swal("增加成功", response.data.msg, "success");
-          self.getDatas('department', 'Department');
-        } else {
-          SweetAlert.swal({title: "增加失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-        }
-      }).catch(function(response) {
-        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-      });
-    };
-    // 编辑
-    function updateDepartment() {
-      var data = {
-        'id': self.selectedItem['id'],
-        'departmentName': self.selectedItem['departmentName']
-      };
-      httpService.formPostRequest(interfacesService.updateDepartment, data).then(function(response) {
-        if (response.data.status == 0) {
-          SweetAlert.swal("编辑成功", response.data.msg, "success");
-          self.hideModal('showDepartmentModal');
-          self.getDatas('department', 'Department');
-        } else {
-          SweetAlert.swal({title: "编辑失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-        }
-      }).catch(function(response) {
-        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-      });
-    };
-    // 增加
-    function addCategory() {
-      var data = {
-        'categoryName': self.addCategoryInput
-      };
-      httpService.formPostRequest(interfacesService.addCategory, data).then(function(response) {
-        if (response.data.status == 0) {
-          SweetAlert.swal("增加成功", response.data.msg, "success");
-          self.getDatas('category', 'Category');
-        } else {
-          SweetAlert.swal({title: "增加失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-        }
-      }).catch(function(response) {
-        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-      });
-    };
-    // 编辑
-    function updateCategory() {
-      var data = {
-        'id': self.selectedItem['id'],
-        'categoryName': self.selectedItem['categoryName']
-      };
-      httpService.formPostRequest(interfacesService.updateCategory, data).then(function(response) {
-        if (response.data.status == 0) {
-          SweetAlert.swal("编辑成功", response.data.msg, "success");
-          self.hideModal('showCategoryModal');
-          self.getDatas('category', 'Category');
-        } else {
-          SweetAlert.swal({title: "编辑失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-        }
-      }).catch(function(response) {
-        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
-      });
-    };
-
   }
 })();
 
@@ -1543,9 +615,9 @@
       templateUrl: 'pages/main/main.template.html',
       resolve: {
         checkLogin: [
-          'authorizationService',
-          function(authorizationService) {
-            return authorizationService.checkLogin()
+          'authorizationFactory',
+          function(authorizationFactory) {
+            return authorizationFactory.checkLogin()
           }
         ]
       }
@@ -1590,6 +662,10 @@
         parent: "main"
       }
     }
+    var wxAssetsInventory = {
+      url: '^/wxAssetsInventory',
+      template: '<wx-assets-inventory></wx-assets-inventory>'
+    }
     $stateProvider.state('sign', signState);
     $stateProvider.state('sign.login', loginState);
     $stateProvider.state('sign.register', registerState);
@@ -1600,8 +676,10 @@
     $stateProvider.state('main.assetManagement.assetRecovery', assetRecovery);
     $stateProvider.state('main.assetManagement.assetsInventory', assetsInventory);
     $stateProvider.state('main.cdManagement', cdManagement);
+    $stateProvider.state('wxAssetsInventory', wxAssetsInventory);
     // $stateProvider.state('main.404', errorState);
     $urlRouterProvider.otherwise('assetSearch');
+    // $urlRouterProvider.otherwise('wxAssetsInventory');
 
   }
 })();
@@ -1925,12 +1003,12 @@ function cardCollapseDirective() {
 (function() {
   'use strict';
 
-  angular.module('app').factory('authorizationService', factory);
+  angular.module('app').factory('authorizationFactory', factory);
 
-  factory.$inject = ['$rootScope', '$state', '$q', 'cacheService'];
+  factory.$inject = ['$rootScope', '$state', '$q', 'cacheFactory'];
 
   /* @ngInject */
-  function factory($rootScope, $state, $q, cacheService) {
+  function factory($rootScope, $state, $q, cacheFactory) {
     var identity = undefined;
     var service = {
       checkLogin: checkLogin,
@@ -1942,7 +1020,7 @@ function cardCollapseDirective() {
     function checkLogin() {
     var deferred = $q.defer();
     var promise = deferred.promise;
-    identity = angular.fromJson(cacheService.get("identity"));
+    identity = angular.fromJson(cacheFactory.get("identity"));
     deferred.resolve(identity);
     return promise.then(function(id) {
       if (!id) {
@@ -1953,7 +1031,7 @@ function cardCollapseDirective() {
   // 取得用户信息
   function getUserInfo(){
     var userInfo;
-    userInfo = angular.fromJson(cacheService.get("identity"));
+    userInfo = angular.fromJson(cacheFactory.get("identity"));
     if(userInfo){
       return userInfo
     }
@@ -1964,7 +1042,7 @@ function cardCollapseDirective() {
 (function() {
   'use strict';
 
-  angular.module('app').factory('cacheService', factory);
+  angular.module('app').factory('cacheFactory', factory);
 
   factory.$inject = ['$cookies'];
 
@@ -2023,7 +1101,7 @@ function cardCollapseDirective() {
 (function() {
   'use strict';
 
-  angular.module('app').factory('httpService', factory);
+  angular.module('app').factory('httpFactory', factory);
 
   factory.$inject = ['$http', '$q'];
 
@@ -2170,14 +1248,16 @@ function cardCollapseDirective() {
 (function() {
   'use strict';
 
-  angular.module('app').factory('interfacesService', factory);
+  angular.module('app').factory('interfacesFactory', factory);
 
   factory.$inject = [];
 
   /* @ngInject */
   function factory() {
-    var main = "http://192.168.1.107:3001/";
-    // var main = "http://192.168.1.124:3001/";
+    // var main = "http://192.168.1.107:3001/";
+    var main = "http://192.168.1.124:3001/";
+    // var main = "http://localhost:80/guotaotest/";
+    // var main = "http://47.92.121.244:80/guotaotest/";
     var api = main;
     var interfaces = {
       //资产搜索
@@ -2226,51 +1306,1035 @@ function cardCollapseDirective() {
 (function() {
   'use strict';
 
-  angular.module('app').component('login', component());
+  angular.module('app').component('assetRecovery', component());
 
   /* @ngInject */
   function component() {
     var component = {
-      templateUrl: 'pages/sign-module/login/login.template.html',
-      controller: loginCtrl
+      templateUrl: 'pages/asset-recovery/asset-recovery.template.html',
+      controller: assetRecoveryCtrl
     };
 
     return component;
   }
 
-  loginCtrl.$inject = ['$state', 'interfacesService', 'httpService', 'cacheService', 'SweetAlert'];
+  assetRecoveryCtrl.$inject = ['interfacesFactory', 'httpFactory', 'assetTableFactory', 'domFactory', 'SweetAlert'];
 
   /* @ngInject */
-  function loginCtrl($state, interfacesService, httpService, cacheService, SweetAlert) {
+  function assetRecoveryCtrl(interfacesFactory, httpFactory, assetTableFactory, domFactory, SweetAlert) {
     var self = this;
-    self.user = {
-      password: '',
-      phone: ''
+    self.data = {};
+    self.theadInfo = {};
+    self.loading = false;
+    self.selectAll = false;
+    self.selectedItem = {};
+    self.selectedArray = [];
+    self.isSelectedArray = [];
+    self.searchInfo = {
+      searchType: '',
+      searchKeyWord: '',
+      assetCategory: '',
+      departmentResponsibility: '',
+      searchPageNumber: 1,
+      searchPageSize: "10"
+    };
+    self.lastSearchRecord = {
+      searchType: '',
+      searchKeyWord: '',
+      assetCategory: '',
+      departmentResponsibility: ''
+    };
+    self.modalInfo = {
+      showDeleteModal: false,
+      showMultipleDeleteModal: false
     };
 
     // function
-    self.login = login
+    self.searchPageNumberChange = searchPageNumberChange
+    self.showModal = showModal
+    self.hideModal = hideModal
+    self.selectAllCheckBox = selectAllCheckBox
+    self.selectSingleCheckBox = selectSingleCheckBox
+    self.getAssetRecycle = getAssetRecycle
+    self.notExistItemInAssetTable = notExistItemInAssetTable
+    self.recycleAssetItem = recycleAssetItem
+    self.deleteAssetRecycleItem = deleteAssetRecycleItem
+    self.createDataList = createDataList
+    self.notExistMultiItemInAssetTable = notExistMultiItemInAssetTable
+    self.recycleAssetMultiItem = recycleAssetMultiItem
+    self.deleteAssetRecycleMultiItem = deleteAssetRecycleMultiItem
 
-    // 提交登陆信息
-    function login() {
-      var user = self.user
-      var data = {
-        password: user.password,
-        phone: user.phone
+    self.getAssetRecycle('', '', '', '', 1);
+
+    // 换页
+    function searchPageNumberChange(newValue) {
+      if (newValue < 1)
+        return;
+      if (newValue > self.data.pages)
+        return;
+      self.searchInfo.searchPageNumber = newValue;
+    }
+    // 显示模态框
+    function showModal(name, item) {
+      if(name === 'showDeleteModal'){
+        self.modalInfo.showDeleteModal = true;
+        domFactory.modalOpen();
+        self.selectedItem = item;
       }
-      httpService.withCredentialsPostRequest(interfacesService.login, data).then(function(response) {
-        if (response.data.status === 0) {
-          var expireDate = new Date();
-          expireDate.setDate(expireDate.getDate() + 7);
-          cacheService.put('identity', angular.toJson(response.data.data), {'expires': expireDate.toUTCString()});
-          $state.go('main.assetManagement.assetSearch');
+      if(name === 'showMultipleDeleteModal'){
+        self.selectedArray = self.createDataList();
+        if (!self.selectedArray.length)
+          return;
+        self.modalInfo.showMultipleDeleteModal = true;
+        domFactory.modalOpen();
+      }
+    }
+    // 隐藏模态框
+    function hideModal(name) {
+      self.modalInfo[name] = false;
+      domFactory.modalHide();
+    }
+    // 全选/全不选
+    function selectAllCheckBox() {
+      var selectAll = self.selectAll;
+      angular.forEach(self.isSelectedArray, function(data, index, array) {
+        array[index] = selectAll;
+      });
+    }
+    // 选择列表中checkbox时触发
+    function selectSingleCheckBox() {
+      if (self.selectAll === true)
+        self.selectAll = false;
+      if (self.selectAll === false) {
+        self.selectAll = (self.isSelectedArray.indexOf(false) === -1)
+          ? true
+          : false;
+      }
+    }
+    // 获取资产回收站列表
+    function getAssetRecycle(searchType, searchKeyWord, assetCategory, departmentResponsibility, pageNum) {
+      var lastSearchRecord = self.lastSearchRecord;
+      self.loading = true;
+      httpFactory.getTableInfoRequest(interfacesFactory.getAssetRecycle, searchType, searchKeyWord, assetCategory, departmentResponsibility, pageNum, self.searchInfo.searchPageSize).then(function(response) {
+        if (response.status == 200 && response.data.data.list) {
+          lastSearchRecord.searchType = searchType;
+          lastSearchRecord.searchKeyWord = searchKeyWord;
+          lastSearchRecord.assetCategory = assetCategory;
+          lastSearchRecord.departmentResponsibility = departmentResponsibility;
+          self.data = response.data.data;
+          if (self.searchInfo.searchPageNumber != response.data.data.pageNum && response.data.data.pageNum)
+            self.searchInfo.searchPageNumber = response.data.data.pageNum;
+          self.theadInfo = assetTableFactory.tableInitailize(self.data);
+          self.selectAll = false;
+          self.isSelectedArray = [];
+          for (var i = 0; i < self.data.list.length; i++) {
+            self.isSelectedArray.push(false);
+          };
         } else {
-          SweetAlert.swal({title: "登陆失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+          self.data.list = [];
+        }
+        self.loading = false;
+      }).catch(function(response) {
+        self.loading = false;
+        SweetAlert.swal({title: "服务器出错了", text: response.statusText, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+      })
+    }
+    // 查重资产表中是否存在单条资产记录
+    function notExistItemInAssetTable(id) {
+      var data = {
+        assetId: id
+      };
+      httpFactory.formPostRequest(interfacesFactory.notExistItemInAssetTable, data).then(function(response) {
+        if (response.data.status == 0) {
+          self.recycleAssetItem(data);
+        } else {
+          SweetAlert.swal({
+            title: '如果恢复，则现资产表中相同资产编号的资产将被覆盖',
+            text: response.data.msg,
+            type: "warning",
+            confirmButtonColor: "#F8BB86",
+            confirmButtonText: "确定恢复",
+            showCancelButton: true,
+            closeOnConfirm: false,
+            closeOnCancel: true
+          }, function(isConfirm) {
+            if (isConfirm)
+              self.recycleAssetItem(data);
+            }
+          );
         }
       }).catch(function(response) {
         SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
       })
     }
+    // 恢复资产回收站中单条记录
+    function recycleAssetItem(data) {
+      var lastSearchRecord = self.lastSearchRecord;
+      httpFactory.formPostRequest(interfacesFactory.recycleAssetItem, data).then(function(response) {
+        if (response.data.status == 0) {
+          SweetAlert.swal("恢复成功", response.data.msg, "success");
+          self.getAssetRecycle(lastSearchRecord.searchType, lastSearchRecord.searchKeyWord, lastSearchRecord.assetCategory, lastSearchRecord.departmentResponsibility, self.searchInfo.searchPageNumber);
+        } else {
+          SweetAlert.swal({title: "恢复失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+        }
+      }).catch(function(response) {
+        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+      });
+    }
+    // 删除资产回收站单条记录
+    function deleteAssetRecycleItem() {
+      var lastSearchRecord = self.lastSearchRecord;
+      var data = {
+        assetId: self.selectedItem['assetId']
+      };
+      httpFactory.formPostRequest(interfacesFactory.deleteAssetRecycleItem, data).then(function(response) {
+        if (response.data.status == 0) {
+          SweetAlert.swal("删除成功", response.data.msg, "success");
+          self.hideModal('showDeleteModal');
+          self.getAssetRecycle(lastSearchRecord.searchType, lastSearchRecord.searchKeyWord, lastSearchRecord.assetCategory, lastSearchRecord.departmentResponsibility, self.searchInfo.searchPageNumber);
+        } else {
+          SweetAlert.swal({title: "删除失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+          self.hideModal('showDeleteModal');
+        }
+      }).catch(function(response) {
+        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+      });
+    }
+    // 根据已选内容生成assetIdList
+    function createDataList() {
+      var assetIdList = [];
+      var dataList = self.data.list;
+      var isSelectedArray = self.isSelectedArray;
+      if (isSelectedArray.indexOf(true) == -1) {
+        SweetAlert.swal({title: "恢复失败", text: "未选择任何资产记录", type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+        return;
+      }
+      angular.forEach(self.isSelectedArray, function(data, index, array) {
+        if (data === true) {
+          assetIdList.push(dataList[index].assetId)
+        };
+      });
+      return assetIdList;
+    }
+    // 查重资产表中是否存在多条资产记录
+    function notExistMultiItemInAssetTable() {
+      var assetIdList = self.createDataList();
+      if (!assetIdList)
+        return;
+      httpFactory.JSONPostRequest(interfacesFactory.notExistMultiItemInAssetTable, assetIdList).then(function(response) {
+        if (response.data.status == 0) {
+          self.recycleAssetMultiItem(assetIdList);
+        } else {
+          SweetAlert.swal({
+            title: '如果恢复，则下列资产编号的资产信息将被覆盖',
+            text: response.data.data,
+            type: "warning",
+            confirmButtonColor: "#F8BB86",
+            confirmButtonText: "确定恢复",
+            showCancelButton: true,
+            closeOnConfirm: false,
+            closeOnCancel: true
+          }, function(isConfirm) {
+            if (isConfirm)
+              self.recycleAssetMultiItem(assetIdList);
+            }
+          );
+        }
+      }).catch(function(response) {
+        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+      });
+    }
+    // 恢复资产回收站中多条记录
+    function recycleAssetMultiItem(assetIdList) {
+      var lastSearchRecord = self.lastSearchRecord;
+      httpFactory.JSONPostRequest(interfacesFactory.recycleAssetMultiItem, assetIdList).then(function(response) {
+        if (response.data.status == 0) {
+          SweetAlert.swal("恢复成功", response.data.msg, "success");
+          self.getAssetRecycle(lastSearchRecord.searchType, lastSearchRecord.searchKeyWord, lastSearchRecord.assetCategory, lastSearchRecord.departmentResponsibility, self.searchInfo.searchPageNumber);
+        } else {
+          SweetAlert.swal({title: "恢复失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+        }
+      }).catch(function(response) {
+        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+      });
+    }
+    // 删除资产回收站多条记录
+    function deleteAssetRecycleMultiItem() {
+      var lastSearchRecord = self.lastSearchRecord;
+      httpFactory.JSONPostRequest(interfacesFactory.deleteAssetRecycleMultiItem, self.selectedArray).then(function(response) {
+        if (response.data.status == 0) {
+          SweetAlert.swal("删除成功", response.data.msg, "success");
+          self.hideModal('showMultipleDeleteModal');
+          self.getAssetRecycle(lastSearchRecord.searchType, lastSearchRecord.searchKeyWord, lastSearchRecord.assetCategory, lastSearchRecord.departmentResponsibility, self.searchInfo.searchPageNumber);
+        } else {
+          SweetAlert.swal({title: "删除失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+          self.hideModal('showMultipleDeleteModal');
+        }
+      }).catch(function(response) {
+        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+      });
+    }
+  }
+})();
+
+(function() {
+  'use strict';
+
+  angular.module('app').component('assetSearch', component());
+
+  /* @ngInject */
+  function component() {
+    var component = {
+      templateUrl: 'pages/asset-search/asset-search.template.html',
+      controller: assetSearchCtrl
+    };
+
+    return component;
+  }
+
+  assetSearchCtrl.$inject = [
+    'interfacesFactory',
+    'httpFactory',
+    'assetTableFactory',
+    'domFactory',
+    'FileUploader',
+    'SweetAlert'
+  ];
+
+  /* @ngInject */
+  function assetSearchCtrl(interfacesFactory, httpFactory, assetTableFactory, domFactory, FileUploader, SweetAlert) {
+    var self = this;
+    self.data = {};
+    self.theadInfo = {};
+    self.loading = false;
+    self.selectedItem = {};
+    self.searchInfo = {
+      searchType: '',
+      searchKeyWord: '',
+      assetCategory: '',
+      departmentResponsibility: '',
+      searchPageNumber: 1,
+      searchPageSize: "10"
+    };
+    self.lastSearchRecord = {
+      searchType: '',
+      searchKeyWord: '',
+      assetCategory: '',
+      departmentResponsibility: ''
+    };
+    self.modalInfo = {
+      showAddModal: false,
+      showEditModal: false,
+      showDeleteModal: false,
+      showImportModal: false,
+      showExportModal: false,
+      importModal: {
+        currentStep: 1
+      },
+      modal: {
+        assetId: '',
+        assetName: '',
+        assetCategory: '',
+        brandSpecification: '',
+        unitMeasurement: '',
+        bookAmount: '',
+        inventoryAmount: '',
+        storageLocation: '',
+        departmentResponsibility: '',
+        personInCharge: '',
+        statusUsage: ''
+      }
+    };
+    // 新建angular-file-upload实例
+    self.uploader = new FileUploader({
+      url: interfacesFactory.importUrl, method: 'POST',
+      // removeAfterUpload: true,
+      // queueLimit: 1,
+    });
+
+    // function
+    self.showModal = showModal;
+    self.showEditModal = showEditModal;
+    self.showDeleteModal = showDeleteModal;
+    self.hideModal = hideModal;
+    self.clean = clean;
+    self.searchPageNumberChange = searchPageNumberChange;
+    self.searchItem = searchItem;
+    self.addItem = addItem;
+    self.editItem = editItem;
+    self.deleteItem = deleteItem;
+    self.printQRcode = printQRcode;
+
+    // 导入资产信息相关操作
+    self.importModalInitialize = importModalInitialize;
+    self.stepChange = stepChange;
+    self.importAssetList = importAssetList;
+    self.exportAssetList = exportAssetList;
+    // angular-file-upload钩子函数
+    self.uploader.onAfterAddingFile = onAfterAddingFile;
+    self.uploader.onSuccessItem = onSuccessItem;
+
+    self.searchItem('', '', '', '', 1);
+
+    // 显示模态框
+    function showModal(name){
+      self.modalInfo[name] = true;
+      domFactory.modalOpen();
+    }
+
+    // 显示编辑模态框
+    function showEditModal(item) {
+      var modalInfo = self.modalInfo;
+      modalInfo.showEditModal = true;
+      domFactory.modalOpen();
+      angular.forEach(modalInfo.modal, function(value, key) {
+        modalInfo.modal[key] = item[key];
+      });
+    }
+    // 显示删除模态框
+    function showDeleteModal(item) {
+      self.modalInfo.showDeleteModal = true;
+      domFactory.modalOpen();
+      self.selectedItem = item;
+    }
+    // 隐藏模态框
+    function hideModal(name) {
+      self.modalInfo[name] = false;
+      if(name === 'showAddModal' || name === 'showEditModal'){
+        self.clean();
+      }
+      domFactory.modalHide();
+    }
+    // 清理modal信息
+    function clean() {
+      var modalInfo = self.modalInfo;
+      angular.forEach(modalInfo.modal, function(value, key) {
+        modalInfo.modal[key] = '';
+      });
+    }
+    // 换页
+    function searchPageNumberChange(newValue) {
+      if (newValue < 1)
+        return;
+      if (newValue > self.data.pages)
+        return;
+      self.searchInfo.searchPageNumber = newValue;
+    }
+    // 查询信息
+    function searchItem(searchType, searchKeyWord, assetCategory, departmentResponsibility, pageNum) {
+      var lastSearchRecord = self.lastSearchRecord;
+      self.loading = true;
+      httpFactory.getTableInfoRequest(interfacesFactory.getAssetUrl, searchType, searchKeyWord, assetCategory, departmentResponsibility, pageNum, self.searchInfo.searchPageSize).then(function(response) {
+        if (response.status == 200 && response.data.data.list) {
+          lastSearchRecord.searchType = searchType;
+          lastSearchRecord.searchKeyWord = searchKeyWord;
+          lastSearchRecord.assetCategory = assetCategory;
+          lastSearchRecord.departmentResponsibility = departmentResponsibility;
+          self.data = response.data.data;
+          if (self.searchInfo.searchPageNumber != response.data.data.pageNum && response.data.data.pageNum) {
+            self.searchInfo.searchPageNumber = response.data.data.pageNum;
+          }
+          self.theadInfo = assetTableFactory.tableInitailize(self.data);
+        } else {
+          self.data.list = [];
+        }
+        self.loading = false;
+      }).catch(function(response) {
+        self.loading = false;
+        SweetAlert.swal({title: "服务器出错了", text: response.statusText, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+      });
+    }
+    // 添加信息
+    function addItem() {
+      var lastSearchRecord = self.lastSearchRecord;
+      var modalInfo = self.modalInfo;
+      if(!modalInfo.modal.bookAmount || modalInfo.modal.bookAmount<0){
+        modalInfo.modal.bookAmount = 0;
+      }
+      if(!modalInfo.modal.inventoryAmount || modalInfo.modal.inventoryAmount<0){
+        modalInfo.modal.inventoryAmount = 0;
+      }
+      httpFactory.formPostRequest(interfacesFactory.addUrl, self.modalInfo.modal).then(function(response) {
+        if (response.data.status == 0) {
+          SweetAlert.swal("添加成功", response.data.msg, "success");
+          self.hideModal('showAddModal');
+          self.searchItem(lastSearchRecord.searchType, lastSearchRecord.searchKeyWord, lastSearchRecord.assetCategory, lastSearchRecord.departmentResponsibility, 1);
+        } else {
+          SweetAlert.swal({title: "添加失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+        }
+      }).catch(function(response) {
+        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+      });
+    }
+    // 编辑信息
+    function editItem() {
+      var lastSearchRecord = self.lastSearchRecord;
+      var modalInfo = self.modalInfo;
+      if(!modalInfo.modal.bookAmount || modalInfo.modal.bookAmount<0){
+        modalInfo.modal.bookAmount = 0;
+      }
+      if(!modalInfo.modal.inventoryAmount || modalInfo.modal.inventoryAmount<0){
+        modalInfo.modal.inventoryAmount = 0;
+      }
+      httpFactory.formPostRequest(interfacesFactory.updateUrl, self.modalInfo.modal).then(function(response) {
+        if (response.data.status == 0) {
+          SweetAlert.swal("编辑成功", response.data.msg, "success");
+          self.hideModal('showEditModal');
+          self.searchItem(lastSearchRecord.searchType, lastSearchRecord.searchKeyWord, lastSearchRecord.assetCategory, lastSearchRecord.departmentResponsibility, self.searchInfo.searchPageNumber);
+        } else {
+          SweetAlert.swal({title: "编辑失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+        }
+      }).catch(function(response) {
+        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+      });
+    }
+    // 删除信息
+    function deleteItem() {
+      var lastSearchRecord = self.lastSearchRecord;
+      var data = {
+        'assetId': self.selectedItem['assetId']
+      };
+      self.hideModal('showDeleteModal');
+      self.selectedItem = {};
+      httpFactory.formPostRequest(interfacesFactory.deleteUrl, data).then(function(response) {
+        if (response.data.status == 0) {
+          SweetAlert.swal("删除成功", response.data.msg, "success");
+          self.searchItem(lastSearchRecord.searchType, lastSearchRecord.searchKeyWord, lastSearchRecord.assetCategory, lastSearchRecord.departmentResponsibility, self.searchInfo.searchPageNumber);
+        } else {
+          SweetAlert.swal({title: "删除失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+        }
+      }).catch(function(response) {
+        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+      });
+    }
+    // 打印资产二维码
+    function printQRcode(assetId, assetName) {
+      var data = {
+        'assetId': assetId,
+        'assetName': assetName
+      };
+      httpFactory.formPostRequest(interfacesFactory.printQRcode, data).then(function(response) {
+        if (response.data.status == 0) {
+          SweetAlert.swal("打印成功", response.data.msg, "success");
+        } else {
+          SweetAlert.swal({title: "打印失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+        }
+      }).catch(function(response) {
+        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+      });
+    }
+    // 初始化导入弹出框
+    function importModalInitialize() {
+      self.hideModal('showImportModal');
+      self.modalInfo.importModal.currentStep = 1;
+      if (self.uploader.queue.length)
+        self.uploader.clearQueue();
+      }
+    // 导入弹出框下一步、上一步切换
+    function stepChange(count) {
+      var modalInfo = self.modalInfo;
+      if (modalInfo.importModal.currentStep === 1 && count === -1)
+        return;
+      if (modalInfo.importModal.currentStep === 3 && count === 1)
+        return;
+      modalInfo.importModal.currentStep += count;
+    }
+    // 上传导入
+    function importAssetList() {
+      var uploader = self.uploader;
+      var len = uploader.queue.length;
+      var array = uploader.queue[0].file.name.split('.');
+      var fileType = array[array.length - 1];
+      if ((fileType !== 'xls' && fileType !== 'xlsx') || len !== 1) {
+        SweetAlert.swal({title: "出错了", text: '只能上传一个以xls或xlsx结尾的文件', type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+        return;
+      } else {
+        uploader.queue[0].upload();
+      }
+    }
+    // 下载导出
+    function exportAssetList() {
+      var lastSearchRecord = self.lastSearchRecord,
+        searchType = '',
+        searchKeyWord = '',
+        assetCategory = '',
+        departmentResponsibility = '',
+        str = '?';
+      if (lastSearchRecord.searchType && lastSearchRecord.searchKeyWord) {
+        searchType = lastSearchRecord.searchType;
+        searchKeyWord = lastSearchRecord.searchKeyWord;
+        str += (searchType + '=' + searchKeyWord + '&');
+      }
+      if (lastSearchRecord.assetCategory) {
+        assetCategory = lastSearchRecord.assetCategory;
+        str += ('assetCategory=' + assetCategory + '&');
+      }
+      if (lastSearchRecord.departmentResponsibility) {
+        departmentResponsibility = lastSearchRecord.departmentResponsibility;
+        str += ('departmentResponsibility=' + departmentResponsibility + '&');
+      }
+
+      self.exportUrl = interfacesFactory.exportUrl + str;
+      self.showModal('showExportModal');
+    }
+    // angular-file-upload钩子函数，添加上传文件后触发
+    function onAfterAddingFile(fileItem) {
+      var uploader = self.uploader;
+      var len = uploader.queue.length;
+      var file = uploader.queue[len - 1];
+      if (len > 1) {
+        uploader.clearQueue();
+        uploader.queue.push(file);
+      }
+    }
+    // angular-file-upload钩子函数，上传成功后触发
+    function onSuccessItem(fileItem, response, status, headers) {
+      if (response.status == 0) {
+        var data = response.data;
+        var read = data.split('excel中读取')[1].split('条记录')[0];
+        var write = data.split('写入数据库')[1].split('条记录')[0];
+        if (read == 0) {
+          SweetAlert.swal({title: "上传失败", text: '上传成功0条，上传表格格式/内容错误', type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+          self.importModalInitialize();
+          return;
+        }
+        if (read != 0 && write == 0) {
+          SweetAlert.swal({title: "上传失败", text: '上传成功0条，可能由于资产ID已经存在', type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+          self.importModalInitialize();
+          return;
+        }
+        if (read != write) {
+          SweetAlert.swal({
+            title: "部分上传成功",
+            text: '上传成功' + write + '条，失败' + (read - write) + '条，可能由于资产ID已经存在',
+            type: "warning",
+            confirmButtonColor: "#F8BB86",
+            confirmButtonText: "确定"
+          });
+          self.importModalInitialize();
+          self.searchItem('', '', '', '', 1);
+          return;
+        }
+        if (read == write && write > 0) {
+          SweetAlert.swal("上传成功", '批量添加资产信息成功', "success");
+          self.importModalInitialize();
+          self.searchItem('', '', '', '', 1);
+          return;
+        }
+      } else {
+        SweetAlert.swal({title: "上传失败", text: response.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+        self.importModalInitialize();
+      }
+    }
+
+  }
+})();
+
+(function() {
+  'use strict';
+
+  angular.module('app').component('assetInventory', component());
+
+  /* @ngInject */
+  function component() {
+    var component = {
+      templateUrl: 'pages/asset-inventory/asset-inventory.template.html',
+      controller: assetInventoryCtrl,
+      bindings: {
+        inventoryType: '<'
+      }
+    };
+
+    return component;
+  }
+
+  assetInventoryCtrl.$inject = ['interfacesFactory', 'httpFactory', 'assetTableFactory', 'domFactory', 'SweetAlert'];
+
+  /* @ngInject */
+  function assetInventoryCtrl(interfacesFactory, httpFactory, assetTableFactory, domFactory, SweetAlert) {
+    var self = this;
+    self.data = {};
+    self.theadInfo = {};
+    self.loading = false;
+    self.assetId = '';
+    self.searchInfo = {
+      searchType: '',
+      searchKeyWord: '',
+      assetCategory: '',
+      departmentResponsibility: '',
+      searchPageNumber: 1,
+      searchPageSize: "10",
+      inventoryType: 'getNotCompleteInventory'
+    };
+    self.lastSearchRecord = {
+      searchType: '',
+      searchKeyWord: '',
+      assetCategory: '',
+      departmentResponsibility: ''
+    };
+    self.modalInfo = {
+      showCheckModal: false,
+      showClearModal: false
+    };
+
+    // function
+    self.showModal = showModal
+    self.hideModal = hideModal
+    self.searchPageNumberChange = searchPageNumberChange
+    self.getInventory = getInventory
+    self.clearInventoryAmount = clearInventoryAmount
+    self.assetInventory = assetInventory
+
+    self.getInventory('', '', '', '', 1, 'getNotCompleteInventory')
+
+    // 显示模态框
+    function showModal(name){
+      self.modalInfo[name] = true;
+      domFactory.modalOpen();
+    }
+    // 隐藏模态框
+    function hideModal(name) {
+      self.modalInfo[name] = false;
+      if(name === 'showCheckModal'){
+        self.assetId = '';
+      }
+      domFactory.modalHide();
+    }
+    // 换页
+    function searchPageNumberChange(newValue) {
+      if (newValue < 1)
+        return;
+      if (newValue > self.data.pages)
+        return;
+      self.searchInfo.searchPageNumber = newValue;
+    }
+    // 获取已完成/未完成资产盘点的资产信息列表
+    function getInventory(searchType, searchKeyWord, assetCategory, departmentResponsibility, pageNum, url) {
+      var lastSearchRecord = self.lastSearchRecord;
+      self.loading = true;
+      httpFactory.getTableInfoRequest(interfacesFactory[url], searchType, searchKeyWord, assetCategory, departmentResponsibility, pageNum, self.searchInfo.searchPageSize).then(function(response) {
+        if (response.status == 200 && response.data.data.list) {
+          lastSearchRecord.searchType = searchType;
+          lastSearchRecord.searchKeyWord = searchKeyWord;
+          lastSearchRecord.assetCategory = assetCategory;
+          lastSearchRecord.departmentResponsibility = departmentResponsibility;
+          self.data = response.data.data;
+          if (self.searchInfo.searchPageNumber != response.data.data.pageNum && response.data.data.pageNum)
+            self.searchInfo.searchPageNumber = response.data.data.pageNum;
+          self.theadInfo = assetTableFactory.tableInitailize(self.data);
+        } else {
+          self.data.list = [];
+        }
+        self.loading = false;
+      }).catch(function(response) {
+        self.loading = false;
+        SweetAlert.swal({title: "服务器出错了", text: response.statusText, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+      })
+    }
+    // 清空资产盘点
+    function clearInventoryAmount() {
+      httpFactory.formPostRequest(interfacesFactory.clearInventoryAmount).then(function(response) {
+        if (response.data.status == 0) {
+          SweetAlert.swal("清空资产盘点成功", response.data.msg, "success");
+          self.hideModal('showClearModal');
+          self.getInventory('', '', '', '', 1, 'getNotCompleteInventory');
+          self.searchInfo.inventoryType = 'getNotCompleteInventory';
+        } else {
+          SweetAlert.swal({title: "清空资产盘点失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+          self.hideModal('showClearModal');
+        }
+      }).catch(function(response) {
+        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+      })
+    }
+    // 盘点资产
+    function assetInventory() {
+      var data = {
+        assetId: self.assetId
+      };
+      httpFactory.formPostRequest(interfacesFactory.assetsInventory, data).then(function(response) {
+        if (response.data.status == 0) {
+          SweetAlert.swal("盘点资产成功", response.data.msg, "success");
+          self.hideModal('showCheckModal');
+          self.getInventory('', '', '', '', 1, 'getCompleteInventory');
+          self.searchInfo.inventoryType = 'getCompleteInventory';
+        } else {
+          SweetAlert.swal({title: "盘点资产失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+        }
+      }).catch(function(response) {
+        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+      })
+    }
+  }
+})();
+
+(function() {
+  'use strict';
+
+  angular.module('app').component('cdManagement', component());
+
+  /* @ngInject */
+  function component() {
+    var component = {
+      templateUrl: 'pages/cd-management/cd-management.template.html',
+      controller: cdManagementCtrl
+    };
+
+    return component;
+  }
+
+  cdManagementCtrl.$inject = ['interfacesFactory', 'httpFactory', 'domFactory', 'SweetAlert'];
+
+  /* @ngInject */
+  function cdManagementCtrl(interfacesFactory, httpFactory, domFactory, SweetAlert) {
+    var self = this
+    self.departmentLoading = false;
+    self.categoryLoading = false;
+    self.departmentArray = [];
+    self.categoryArray = [];
+    self.deptShowPencilLable = 999;
+    self.catShowPencilLable = 999;
+    self.addDepartmentInput = '';
+    self.addCategoryInput = '';
+    self.selectedItem = {};
+    self.modalInfo = {
+      showDepartmentModal: false,
+      showCategoryModal: false
+    };
+
+    // function
+    self.showModal = showModal
+    self.hideModal = hideModal
+    self.getDatas = getDatas
+    self.deleteDatas = deleteDatas
+    self.addDepartment = addDepartment
+    self.updateDepartment = updateDepartment
+    self.addCategory = addCategory
+    self.updateCategory = updateCategory
+
+    self.getDatas('department', 'Department')
+    self.getDatas('category', 'Category')
+
+    // 显示模态框
+    function showModal(name, item) {
+      self.modalInfo[name] = true;
+      domFactory.modalOpen();
+      self.selectedItem = item;
+    };
+    // 隐藏模态框
+    function hideModal(name) {
+      self.modalInfo[name] = false;
+      domFactory.modalHide();
+    }
+    // 获取
+    function getDatas(param, Param) {
+      self[param + 'Loading'] = true;
+      httpFactory.getRequest(interfacesFactory['get' + Param]).then(function(response) {
+        if (response.data.status == 0) {
+          self[param + 'Array'] = response.data.data;
+        } else {
+          self[param + 'Array'] = [];
+        }
+        self[param + 'Loading'] = false;
+      }).catch(function(response) {
+        self[param + 'Loading'] = false;
+        SweetAlert.swal({title: "服务器出错了", text: response.statusText, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+      });
+    };
+    // 删除
+    function deleteDatas(param, Param) {
+      var data = {
+        'id': self.selectedItem['id']
+      };
+      httpFactory.formPostRequest(interfacesFactory['delete' + Param], data).then(function(response) {
+        if (response.data.status == 0) {
+          SweetAlert.swal("删除成功", response.data.msg, "success");
+          self.hideModal('show' + Param + 'Modal');
+          self.getDatas(param, Param);
+        } else {
+          SweetAlert.swal({title: "删除失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+          self.hideModal('show' + Param + 'Modal');
+        }
+      }).catch(function(response) {
+        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+      });
+    };
+    // 增加
+    function addDepartment() {
+      var data = {
+        'departmentName': self.addDepartmentInput
+      };
+      httpFactory.formPostRequest(interfacesFactory.addDepartment, data).then(function(response) {
+        if (response.data.status == 0) {
+          SweetAlert.swal("增加成功", response.data.msg, "success");
+          self.getDatas('department', 'Department');
+        } else {
+          SweetAlert.swal({title: "增加失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+        }
+      }).catch(function(response) {
+        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+      });
+    };
+    // 编辑
+    function updateDepartment() {
+      var data = {
+        'id': self.selectedItem['id'],
+        'departmentName': self.selectedItem['departmentName']
+      };
+      httpFactory.formPostRequest(interfacesFactory.updateDepartment, data).then(function(response) {
+        if (response.data.status == 0) {
+          SweetAlert.swal("编辑成功", response.data.msg, "success");
+          self.hideModal('showDepartmentModal');
+          self.getDatas('department', 'Department');
+        } else {
+          SweetAlert.swal({title: "编辑失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+        }
+      }).catch(function(response) {
+        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+      });
+    };
+    // 增加
+    function addCategory() {
+      var data = {
+        'categoryName': self.addCategoryInput
+      };
+      httpFactory.formPostRequest(interfacesFactory.addCategory, data).then(function(response) {
+        if (response.data.status == 0) {
+          SweetAlert.swal("增加成功", response.data.msg, "success");
+          self.getDatas('category', 'Category');
+        } else {
+          SweetAlert.swal({title: "增加失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+        }
+      }).catch(function(response) {
+        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+      });
+    };
+    // 编辑
+    function updateCategory() {
+      var data = {
+        'id': self.selectedItem['id'],
+        'categoryName': self.selectedItem['categoryName']
+      };
+      httpFactory.formPostRequest(interfacesFactory.updateCategory, data).then(function(response) {
+        if (response.data.status == 0) {
+          SweetAlert.swal("编辑成功", response.data.msg, "success");
+          self.hideModal('showCategoryModal');
+          self.getDatas('category', 'Category');
+        } else {
+          SweetAlert.swal({title: "编辑失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+        }
+      }).catch(function(response) {
+        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+      });
+    };
+
+  }
+})();
+
+(function() {
+  'use strict';
+
+  angular.module('app').component('wxAssetsInventory', component());
+
+  /* @ngInject */
+  function component() {
+    var component = {
+      templateUrl: 'pages/wx-assets-inventory/wx-assets-inventory.template.html',
+      controller: wxAssetsInventoryCtrl
+    };
+
+    return component;
+  }
+
+  wxAssetsInventoryCtrl.$inject = ['httpFactory'];
+
+  /* @ngInject */
+  function wxAssetsInventoryCtrl(httpFactory) {
+    var self = this;
+    var appId = 'wxf1a816d98afbb951';
+    var appSecret = '78cf52fda587e9c759cce185eb24d9ff';
+    var token;
+    self.input = '';
+
+    // function
+    self.init = init;
+    self.getToken = getToken;
+    self.getTicket = getTicket;
+    self.wxScan = wxScan;
+    // self.init();
+    // self.getToken();
+
+    //插入jweixin
+    function init() {
+      var src = '<script src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>';
+      var body = document.getElementsByTagName('body');
+      var template = angular.element(src);
+      angular.element(body).append(template);
+    }
+
+    //获取access_token
+    function getToken() {
+      var url = "https://api.weixin.qq.com/cgi-bin/token";
+      var data = {
+        grant_type: 'client_credential',
+        appid: appId,
+        appSecret: appSecret
+      }
+      httpFactory.getRequest(url, data).then(function(response) {
+        cosnole.log(response)
+        // if (response.data.status == 0) {
+        // token = ;
+        //self.getTicket()
+        // }
+      }).catch(function(response) {})
+    }
+
+    //获取jsapi_ticket
+    function getTicket() {
+      var url = "https://api.weixin.qq.com/cgi-bin/ticket/getticket";
+      var data = {
+        access_token: token,
+        type: 'jsapi'
+      }
+      httpFactory.getRequest(url, data).then(function(response) {
+        cosnole.log(response)
+        // if (response.data.status == 0) {
+        //
+        // }
+      }).catch(function(response) {})
+    }
+
+    //扫描二维码
+    function wxScan() {
+      wx.scanQRCode({
+        needResult: 1, // 默认为0，扫描结果由微信处理，1则直接返回扫描结果，
+        scanType: [
+          "qrCode", "barCode"
+        ],
+        success: function(res) {
+          var result = res.resultStr; // 当needResult 为 1 时，扫码返回的结果
+          self.input = result;
+          alert("扫描成功");
+        }
+      });
+    }
+
+    wx.config({
+      debug: true, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+      appId: 'wxf1a816d98afbb951', // 必填，公众号的唯一标识
+      timestamp: '', // 必填，生成签名的时间戳
+      nonceStr: '', // 必填，生成签名的随机串
+      signature: '', // 必填，签名，见附录1
+      jsApiList: ['checkJsApi', 'scanQRCode'] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+    });
+
+    wx.error(function(res) {
+      alert("出错了：" + res.errMsg);
+    });
+
+    wx.ready(function() {
+      wx.checkJsApi({jsApiList: ['scanQRCode'], success: function(res) {}});
+    })
 
   }
 })();
@@ -2294,13 +2358,13 @@ function cardCollapseDirective() {
     '$state',
     '$timeout',
     '$interval',
-    'interfacesService',
-    'httpService',
+    'interfacesFactory',
+    'httpFactory',
     'SweetAlert'
   ];
 
   /* @ngInject */
-  function registerCtrl($state, $timeout, $interval, interfacesService, httpService, SweetAlert) {
+  function registerCtrl($state, $timeout, $interval, interfacesFactory, httpFactory, SweetAlert) {
     var self = this;
     var count = 60;
     self.time = '';
@@ -2343,7 +2407,7 @@ function cardCollapseDirective() {
       var data = {
         phone: self.user.phone
       }
-      httpService.withCredentialsPostRequest(interfacesService.sendVerificationCode, data).then(function(response) {
+      httpFactory.withCredentialsPostRequest(interfacesFactory.sendVerificationCode, data).then(function(response) {
         if (response.data.status === 0) {
           self.countDown();
         } else {
@@ -2362,7 +2426,7 @@ function cardCollapseDirective() {
         phone: user.phone,
         verificationCode: user.message
       }
-      httpService.withCredentialsPostRequest(interfacesService.register, data).then(function(response) {
+      httpFactory.withCredentialsPostRequest(interfacesFactory.register, data).then(function(response) {
         if (response.data.status === 0) {
           SweetAlert.swal({
             title: "注册成功",
@@ -2387,6 +2451,58 @@ function cardCollapseDirective() {
 (function() {
   'use strict';
 
+  angular.module('app').component('login', component());
+
+  /* @ngInject */
+  function component() {
+    var component = {
+      templateUrl: 'pages/sign-module/login/login.template.html',
+      controller: loginCtrl
+    };
+
+    return component;
+  }
+
+  loginCtrl.$inject = ['$state', 'interfacesFactory', 'httpFactory', 'cacheFactory', 'SweetAlert'];
+
+  /* @ngInject */
+  function loginCtrl($state, interfacesFactory, httpFactory, cacheFactory, SweetAlert) {
+    var self = this;
+    self.user = {
+      password: '',
+      phone: ''
+    };
+
+    // function
+    self.login = login
+
+    // 提交登陆信息
+    function login() {
+      var user = self.user
+      var data = {
+        password: user.password,
+        phone: user.phone
+      }
+      httpFactory.withCredentialsPostRequest(interfacesFactory.login, data).then(function(response) {
+        if (response.data.status === 0) {
+          var expireDate = new Date();
+          expireDate.setDate(expireDate.getDate() + 7);
+          cacheFactory.put('identity', angular.toJson(response.data.data), {'expires': expireDate.toUTCString()});
+          $state.go('main.assetManagement.assetSearch');
+        } else {
+          SweetAlert.swal({title: "登陆失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+        }
+      }).catch(function(response) {
+        SweetAlert.swal({title: "服务器出错了", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
+      })
+    }
+
+  }
+})();
+
+(function() {
+  'use strict';
+
   angular.module('app').component('resetPassword', component());
 
   /* @ngInject */
@@ -2403,13 +2519,13 @@ function cardCollapseDirective() {
     '$state',
     '$timeout',
     '$interval',
-    'interfacesService',
-    'httpService',
+    'interfacesFactory',
+    'httpFactory',
     'SweetAlert'
   ];
 
   /* @ngInject */
-  function resetPasswordCtrl($state, $timeout, $interval, interfacesService, httpService, SweetAlert) {
+  function resetPasswordCtrl($state, $timeout, $interval, interfacesFactory, httpFactory, SweetAlert) {
     var self = this;
     var count = 60;
     self.time = '';
@@ -2451,7 +2567,7 @@ function cardCollapseDirective() {
       var data = {
         phone: self.user.phone
       }
-      httpService.withCredentialsPostRequest(interfacesService.sendResetVerificationCode, data).then(function(response) {
+      httpFactory.withCredentialsPostRequest(interfacesFactory.sendResetVerificationCode, data).then(function(response) {
         if (response.data.status === 0) {
           self.countDown();
         } else {
@@ -2469,7 +2585,7 @@ function cardCollapseDirective() {
         phone: user.phone,
         verificationCode: user.message
       }
-      httpService.withCredentialsPostRequest(interfacesService.resetPassword, data).then(function(response) {
+      httpFactory.withCredentialsPostRequest(interfacesFactory.resetPassword, data).then(function(response) {
         if (response.data.status === 0) {
           SweetAlert.swal({
             title: "重置密码成功",

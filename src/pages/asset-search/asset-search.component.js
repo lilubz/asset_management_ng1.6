@@ -14,16 +14,16 @@
   }
 
   assetSearchCtrl.$inject = [
-    'interfacesService',
-    'httpService',
-    'assetTableService',
+    'interfacesFactory',
+    'httpFactory',
+    'assetTableFactory',
     'domFactory',
     'FileUploader',
     'SweetAlert'
   ];
 
   /* @ngInject */
-  function assetSearchCtrl(interfacesService, httpService, assetTableService, domFactory, FileUploader, SweetAlert) {
+  function assetSearchCtrl(interfacesFactory, httpFactory, assetTableFactory, domFactory, FileUploader, SweetAlert) {
     var self = this;
     self.data = {};
     self.theadInfo = {};
@@ -68,7 +68,7 @@
     };
     // 新建angular-file-upload实例
     self.uploader = new FileUploader({
-      url: interfacesService.importUrl, method: 'POST',
+      url: interfacesFactory.importUrl, method: 'POST',
       // removeAfterUpload: true,
       // queueLimit: 1,
     });
@@ -145,7 +145,7 @@
     function searchItem(searchType, searchKeyWord, assetCategory, departmentResponsibility, pageNum) {
       var lastSearchRecord = self.lastSearchRecord;
       self.loading = true;
-      httpService.getTableInfoRequest(interfacesService.getAssetUrl, searchType, searchKeyWord, assetCategory, departmentResponsibility, pageNum, self.searchInfo.searchPageSize).then(function(response) {
+      httpFactory.getTableInfoRequest(interfacesFactory.getAssetUrl, searchType, searchKeyWord, assetCategory, departmentResponsibility, pageNum, self.searchInfo.searchPageSize).then(function(response) {
         if (response.status == 200 && response.data.data.list) {
           lastSearchRecord.searchType = searchType;
           lastSearchRecord.searchKeyWord = searchKeyWord;
@@ -155,7 +155,7 @@
           if (self.searchInfo.searchPageNumber != response.data.data.pageNum && response.data.data.pageNum) {
             self.searchInfo.searchPageNumber = response.data.data.pageNum;
           }
-          self.theadInfo = assetTableService.tableInitailize(self.data);
+          self.theadInfo = assetTableFactory.tableInitailize(self.data);
         } else {
           self.data.list = [];
         }
@@ -175,7 +175,7 @@
       if(!modalInfo.modal.inventoryAmount || modalInfo.modal.inventoryAmount<0){
         modalInfo.modal.inventoryAmount = 0;
       }
-      httpService.formPostRequest(interfacesService.addUrl, self.modalInfo.modal).then(function(response) {
+      httpFactory.formPostRequest(interfacesFactory.addUrl, self.modalInfo.modal).then(function(response) {
         if (response.data.status == 0) {
           SweetAlert.swal("添加成功", response.data.msg, "success");
           self.hideModal('showAddModal');
@@ -197,7 +197,7 @@
       if(!modalInfo.modal.inventoryAmount || modalInfo.modal.inventoryAmount<0){
         modalInfo.modal.inventoryAmount = 0;
       }
-      httpService.formPostRequest(interfacesService.updateUrl, self.modalInfo.modal).then(function(response) {
+      httpFactory.formPostRequest(interfacesFactory.updateUrl, self.modalInfo.modal).then(function(response) {
         if (response.data.status == 0) {
           SweetAlert.swal("编辑成功", response.data.msg, "success");
           self.hideModal('showEditModal');
@@ -217,7 +217,7 @@
       };
       self.hideModal('showDeleteModal');
       self.selectedItem = {};
-      httpService.formPostRequest(interfacesService.deleteUrl, data).then(function(response) {
+      httpFactory.formPostRequest(interfacesFactory.deleteUrl, data).then(function(response) {
         if (response.data.status == 0) {
           SweetAlert.swal("删除成功", response.data.msg, "success");
           self.searchItem(lastSearchRecord.searchType, lastSearchRecord.searchKeyWord, lastSearchRecord.assetCategory, lastSearchRecord.departmentResponsibility, self.searchInfo.searchPageNumber);
@@ -234,7 +234,7 @@
         'assetId': assetId,
         'assetName': assetName
       };
-      httpService.formPostRequest(interfacesService.printQRcode, data).then(function(response) {
+      httpFactory.formPostRequest(interfacesFactory.printQRcode, data).then(function(response) {
         if (response.data.status == 0) {
           SweetAlert.swal("打印成功", response.data.msg, "success");
         } else {
@@ -295,7 +295,7 @@
         str += ('departmentResponsibility=' + departmentResponsibility + '&');
       }
 
-      self.exportUrl = interfacesService.exportUrl + str;
+      self.exportUrl = interfacesFactory.exportUrl + str;
       self.showModal('showExportModal');
     }
     // angular-file-upload钩子函数，添加上传文件后触发
