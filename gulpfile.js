@@ -28,7 +28,7 @@ gulp.task('less', function() {
   gulp.src(app.srcPath + 'app.less')
   .pipe($.plumber())
   .pipe($.less())
-  // .pipe($.autoprefix('last 2 versions'))
+  // .pipe($.autoprefix({browsers: ['last 3 version']}))
   .pipe(gulp.dest(app.devPath + 'css'))
   .pipe($.cssmin())
   .pipe(gulp.dest(app.prdPath + 'css'))

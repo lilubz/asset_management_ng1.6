@@ -1,6 +1,45 @@
 <div class="wx-page">
     <input type="text" name="" class="form-contrl" ng-model="$ctrl.input">
     <button type="button" name="button" class="btn btn-primary" ng-click="$ctrl.wxScan()">扫一扫</button>
-    <button type="button" name="button" class="btn btn-success">盘点</button>
-    <button type="button" name="button" class="btn btn-danger" ng-click="$ctrl.input=''">清空</button>
+    <button type="button" name="button" class="btn btn-success" ng-click="$ctrl.assetInventory()">盘点</button>
+    <button type="button" name="button" class="btn btn-secondary" ng-click="$ctrl.input=''">清空</button>
+    <ul class="asset-info" ng-show="$ctrl.length">
+      <li>资产编号：
+        <span ng-show="$ctrl.assetInfo.assetId" ng-bind="$ctrl.assetInfo.assetId"></span>
+        <span ng-show="!$ctrl.assetInfo.assetId">无</span>
+      </li>
+      <li>资产名称：
+        <span ng-show="$ctrl.assetInfo.assetName" ng-bind="$ctrl.assetInfo.assetName"></span>
+        <span ng-show="!$ctrl.assetInfo.assetName">无</span>
+      </li>
+      <li>资产类别：
+        <span ng-show="$ctrl.assetInfo.assetCategory" ng-bind="$ctrl.assetInfo.assetCategory"></span>
+        <span ng-show="!$ctrl.assetInfo.assetCategory">无</span>
+      </li>
+      <li>责任部门：
+        <span ng-show="$ctrl.assetInfo.departmentResponsibility" ng-bind="$ctrl.assetInfo.departmentResponsibility"></span>
+        <span ng-show="!$ctrl.assetInfo.departmentResponsibility">无</span>
+      </li>
+      <li>责任人：
+        <span ng-show="$ctrl.assetInfo.personInCharge" ng-bind="$ctrl.assetInfo.personInCharge"></span>
+        <span ng-show="!$ctrl.assetInfo.personInCharge">无</span>
+      </li>
+      <li>存放地点：
+        <span ng-show="$ctrl.assetInfo.storageLocation" ng-bind="$ctrl.assetInfo.storageLocation"></span>
+        <span ng-show="!$ctrl.assetInfo.storageLocation">无</span>
+      </li>
+      <li>资产账面数量：
+        <span ng-show="$ctrl.assetInfo.bookAmount" ng-bind="$ctrl.assetInfo.bookAmount"></span>
+        <span ng-show="!$ctrl.assetInfo.bookAmount">无</span>
+      </li>
+      <li>资产盘点数量：
+        <span ng-show="$ctrl.assetInfo.inventoryAmount" ng-bind="$ctrl.assetInfo.inventoryAmount"></span>
+        <span ng-show="!$ctrl.assetInfo.inventoryAmount">无</span>
+      </li>
+      <li>使用状况：
+        <span ng-show="$ctrl.assetInfo.statusUsage" ng-bind="$ctrl.assetInfo.statusUsage"></span>
+        <span ng-show="!$ctrl.assetInfo.statusUsage">无</span>
+      </li>
+    </ul>
 </div>
+<div id="short-msg" class="short-msg" ng-show="$ctrl.shortMsgShow" ng-bind="$ctrl.shortMsgText"></div>
