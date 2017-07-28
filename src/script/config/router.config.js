@@ -7,9 +7,16 @@
 
   /* @ngInject */
   function appRouter($stateProvider, $urlRouterProvider) {
-    var signState = {
+    var homepage = {
       abstract: true,
-      templateUrl: 'pages/sign-module/sign/sign.template.html'
+      templateUrl: 'pages/sign-module/homepage/homepage.template.html'
+    }
+    var signState = {
+      template: '<sign></sign>'
+    }
+    var about = {
+      url: '^/about',
+      template: '<about></about>'
     }
     var loginState = {
       url: '^/login',
@@ -79,10 +86,12 @@
       url: '^/wxAssetsInventory',
       template: '<wx-assets-inventory></wx-assets-inventory>'
     }
-    $stateProvider.state('sign', signState);
-    $stateProvider.state('sign.login', loginState);
-    $stateProvider.state('sign.register', registerState);
-    $stateProvider.state('sign.resetPassword', resetPasswordState);
+    $stateProvider.state('homepage', homepage);
+    $stateProvider.state('homepage.about', about);
+    $stateProvider.state('homepage.sign', signState);
+    $stateProvider.state('homepage.sign.login', loginState);
+    $stateProvider.state('homepage.sign.register', registerState);
+    $stateProvider.state('homepage.sign.resetPassword', resetPasswordState);
     $stateProvider.state('main', mainState);
     $stateProvider.state('main.assetManagement', assetManagementState);
     $stateProvider.state('main.assetManagement.assetSearch', assetSearch);
@@ -90,9 +99,6 @@
     $stateProvider.state('main.assetManagement.assetsInventory', assetsInventory);
     $stateProvider.state('main.cdManagement', cdManagement);
     $stateProvider.state('wxAssetsInventory', wxAssetsInventory);
-    // $stateProvider.state('main.404', errorState);
     $urlRouterProvider.otherwise('assetSearch');
-    // $urlRouterProvider.otherwise('wxAssetsInventory');
-
   }
 })();

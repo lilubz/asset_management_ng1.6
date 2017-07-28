@@ -92,7 +92,7 @@
             confirmButtonText: "去登陆"
           }, function() {
             $timeout(function() {
-              $state.go('sign.login')
+              $state.go('homepage.sign.login')
             }, 500)
           });
         } else {

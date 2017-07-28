@@ -28,7 +28,7 @@
       httpFactory.getRequest(interfacesFactory.logout).then(function(response) {
         if (response.data.status === 0) {
           cacheFactory.remove('identity');
-          $state.go('sign.login');
+          $state.go('homepage.sign.login');
         } else {
           SweetAlert.swal({title: "登出失败", text: response.data.msg, type: "error", confirmButtonColor: "#F27474", confirmButtonText: "确定"});
         }

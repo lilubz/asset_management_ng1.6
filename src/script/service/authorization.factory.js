@@ -22,7 +22,7 @@
     deferred.resolve(identity);
     return promise.then(function(id) {
       if (!id) {
-        $state.go('sign.login');
+        $state.go('homepage.sign.login');
       }
     });
   }
